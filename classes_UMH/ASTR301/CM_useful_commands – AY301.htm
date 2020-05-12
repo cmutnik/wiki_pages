@@ -1,0 +1,397 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+
+
+  <head>
+    <title>
+      CM_useful_commands – AY301
+    </title>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!--[if IE]><script type="text/javascript">
+      if (/^#__msie303:/.test(window.location.hash))
+        window.location.replace(window.location.hash.replace(/^#__msie303:/, '#'));
+    </script><![endif]-->
+        <link rel="search" href="/ay301/search" />
+        <link rel="help" href="/ay301/wiki/TracGuide" />
+        <link rel="alternate" href="/ay301/wiki/CM_useful_commands?format=txt" type="text/x-trac-wiki" title="Plain Text" />
+        <link rel="start" href="/ay301/wiki" />
+        <link rel="stylesheet" href="/ay301/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/ay301/chrome/common/css/wiki.css" type="text/css" />
+        <link rel="shortcut icon" href="/ay301/chrome/common/trac.ico" type="image/x-icon" />
+        <link rel="icon" href="/ay301/chrome/common/trac.ico" type="image/x-icon" />
+    <style id="trac-noscript" type="text/css">.trac-noscript { display: none !important }</style>
+      <link type="application/opensearchdescription+xml" rel="search" href="/ay301/search/opensearch" title="Search AY301" />
+      <script type="text/javascript" charset="utf-8" src="/ay301/chrome/common/js/jquery.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/ay301/chrome/common/js/babel.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/ay301/chrome/common/js/trac.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/ay301/chrome/common/js/search.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/ay301/chrome/common/js/folding.js"></script>
+    <script type="text/javascript">
+      jQuery("#trac-noscript").remove();
+      jQuery(document).ready(function($) {
+        $(".trac-autofocus").focus();
+        $(".trac-target-new").attr("target", "_blank");
+        setTimeout(function() { $(".trac-scroll").scrollToTop() }, 1);
+        $(".trac-disable-on-submit").disableOnSubmit();
+      });
+    </script>
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor(_("Link to this section"));
+        $("#content").find(".wikianchor").each(function() {
+          $(this).addAnchor(babel.format(_("Link to #%(id)s"), {id: $(this).attr('id')}));
+        });
+        $(".foldable").enableFolding(true, true);
+      });
+    </script>
+    <link rel="stylesheet" href="/ay301/chrome/site/style.css" />
+  </head>
+  <body>
+    <div id="siteheader">
+    </div>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="/ay301/wiki/TracIni#header_logo-section"><img src="/ay301/chrome/site/icover.png" alt="ASTR 301 2016" /></a>
+      </div>
+      <form id="search" action="/ay301/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/ay301/login">Login</a></li><li><a href="/ay301/prefs">Preferences</a></li><li><a href="/ay301/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/ay301/about">About Trac</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first active"><a href="/ay301/wiki">Wiki</a></li><li><a href="/ay301/timeline">Timeline</a></li><li><a href="/ay301/roadmap">Roadmap</a></li><li><a href="/ay301/report">View Tickets</a></li><li class="last"><a href="/ay301/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="pagepath" class="noprint">
+  <a class="pathentry first" title="View WikiStart" href="/ay301/wiki">wiki:</a><a class="pathentry" href="/ay301/wiki/CM_useful_commands" title="View CM_useful_commands">CM_useful_commands</a>
+</div>
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+        <ul>
+          <li class="first"><a href="/ay301/wiki/WikiStart">Start Page</a></li><li><a href="/ay301/wiki/TitleIndex">Index</a></li><li class="last"><a href="/ay301/wiki/CM_useful_commands?action=history">History</a></li>
+        </ul>
+        <hr />
+      </div>
+    <div id="content" class="wiki">
+      <div class="wikipage searchable">
+        
+          <div id="wikipage" class="trac-content"><h1 id="AlistofusefulcommandsIhavefoundusedduringASTR301"><strong>A list of useful commands I have found/used during ASTR301</strong></h1>
+<hr />
+<hr />
+<h1 id="CommandLine">Command Line</h1>
+<hr />
+<h3 id="FITSHeader">FITS Header</h3>
+<p>
+print fits header to standard output
+</p>
+<pre class="wiki">fold -w 80 [file.fits] | more
+</pre><ul><li>Ex:
+<pre class="wiki">fold -w 80 F3V_HD26015_rayner.fits | more
+</pre></li></ul><hr />
+<h3 id="Addition">Addition</h3>
+<p>
+<tt> echo '57+43' | bc</tt>
+</p>
+<hr />
+<h3 id="UnixTimer">Unix Timer</h3>
+<ul><li>Ex of using timer to see how long the python code 'aaa.py' takes to run:
+<pre class="wiki">time python aaa.py
+</pre></li></ul><hr />
+<h3 id="FloorCeiling">Floor &amp; Ceiling</h3>
+<ul><li>floor:
+<pre class="wiki">echo "7.2" | perl -nl -MPOSIX -e 'print floor($_);'
+</pre></li></ul><ul><li>ceiling:
+<pre class="wiki">echo "7.2" | perl -nl -MPOSIX -e 'print ceil($_);'
+</pre></li></ul><ul><li>Ex:
+<pre class="wiki"># save values as variables
+sim_ra=101.087796
+sim_dec=-01.288244
+
+# save floored values as variables
+fr=$(echo $sim_ra | perl -nl -MPOSIX -e 'print floor($_);')
+ced=$(echo $sim_dec | perl -nl -MPOSIX -e 'print ceil($_);')
+
+# print values
+echo floor of $sim_ra is $fr
+echo ceiling of $sim_dec is $ced
+</pre></li></ul><hr />
+<h3 id="Useawk">Use 'awk'</h3>
+<ul><li>use awk to skip lines with wrong number or colums in lsum files
+<pre class="wiki"># see the head of file
+head lsum.newscript.99.-1.dat
+
+# see the number of fields in a row of the file
+awk '{print NF}' lsum.newscript.99.-1.dat
+#&gt;&gt; 27
+
+# show which lines dont have 27 fields
+awk 'NF!=27{print NF,NR}' lsum.newscript.99.-1.dat
+</pre><ul><li>can pipe this lines to new file using '{print $0}'
+</li></ul></li></ul><ul><li>use awk to filter simbad outputs:
+<pre class="wiki">head simbad.pu.90.120.-19.15.txt
+# uses: delimiter="|"
+awk -F\| '{print $4}' simbad.pu.90.120.-19.15.txt | head -20
+</pre><ul><li>pipe RA Dec out to file, now only separated by white space
+</li></ul></li></ul><ul><li>EX:
+<pre class="wiki"># copy over new lsum file, 
+cp /ay303/atlas/area_dpg/lsum.dat lsum_160419.dat
+
+#check what the proper number of columns is
+awk '{print NF}' lsum_160419.dat
+#&gt;&gt;27
+
+#check to make sure each line has the proper number of columns
+awk 'NF!=27{print NF,NR}' lsum_160419.dat
+
+# make new file that only contains rows with proper number of columns
+awk 'NF==27{print $0}' lsum_160419.dat &gt; lsum_160419_awked.dat
+
+# verify by counting number of lines in each file
+ls | wc -l lsum_160419.dat
+#&gt;&gt; 315992 lsum_160419.dat
+ls | wc -l lsum_160419_awked.dat
+#&gt;&gt;315974 lsum_160419_awked.dat
+</pre></li></ul><hr />
+<h3 id="Whoisloggedin">Who is logged in</h3>
+<pre class="wiki">man who
+</pre><h3 id="StdErr">Std Err</h3>
+<p>
+error message is '2' so to pipe error messages out:
+</p>
+<pre class="wiki">comp_simbad_obs_radectol.sh 2&gt; empty_var_files.errmsg
+</pre><hr />
+<h3 id="Writetofile">Write to file</h3>
+<ul><li>to write the word hi to a file 'foo.txt':
+<pre class="wiki"># '&gt;' overwrites any existing file with same name
+echo 'hi' &gt; foo.txt
+
+# '&gt;&gt;' appends to file with same name
+echo 'bye' &gt;&gt; foo.txt
+</pre></li></ul><hr />
+<h2 id="Copile.textoPDF">Copile .tex to PDF</h2>
+<pre class="wiki">pdflatex foo.tex
+</pre><hr />
+<h2 id="SCREEN">SCREEN</h2>
+<ul><li><a class="wiki" href="/ay301/wiki/CMscreenblog">manage screens blog</a>
+</li></ul><p>
+in ssh use screen in case pipeline break it will keep working...[cntrl] a; d; is attach detach...and come back to the screen
+</p>
+<pre class="wiki">screen -L     # starts new screen
+screen -r     # lists or resumes session
+[cntrl] a; d    # attach; detach
+screen -S named    # names new session: '*.named'
+screen -X -S [session id] quit    # kills running session
+</pre><ul><li>keep typing screen -L to make new screens, and screen -r to see the screens that are open
+</li><li>do NOT make plots in screen
+<ul><li>detached screen does not having plotting interface
+</li><li>attached screen may not either
+</li></ul></li></ul><hr />
+<h2 id="Counting">Counting</h2>
+<ul><li>count number of "files" in current dir:
+<pre class="wiki">ls | wc -l
+</pre></li></ul><hr />
+<h2 id="DiskSpace">Disk Space</h2>
+<ul><li>disk free human readable: 
+<pre class="wiki">df -h
+</pre></li></ul><ul><li>see how large dir is:
+<pre class="wiki">du -h /dir/location
+</pre></li></ul><hr />
+<h2 id="Opentar.gzon">Open tar.gz on</h2>
+<pre class="wiki">gunzip -c foo.tar.gz | tar xopf -
+</pre><hr />
+<h2 id="AddThingstoPath">Add Things to Path</h2>
+<ul><li>command to append path settings in ~/.login file 
+<pre class="wiki">echo 'set path = ($path /usr/local/bin $HOME/bin .)' &gt;&gt; ~/.login
+</pre></li></ul><ul><li>command to append path settings in ~/.tcshrc file
+<pre class="wiki">echo 'setenv PATH $PATH\:/usr/local/bin\:$HOME/bin\:.'  &gt;&gt; ~/.tcshrc
+</pre><ul><li>for programs I alias them rather than add to path (so you can abbrev:
+<pre class="wiki"># example of an alias for the program 'Xee' in a tcsh terminal
+alias xee 'open /Applications/Xee.app'
+</pre></li></ul></li></ul><hr />
+<h2 id="CPUusage">CPU usage =</h2>
+<ul><li>process list:
+<pre class="wiki">ps -ef
+</pre></li></ul><hr />
+<pre class="wiki">top
+</pre><ul><li>kill processes:
+<pre class="wiki">kill -9 [PID]
+</pre></li></ul><h3 id="Exampleusingtop">Example using top</h3>
+<p>
+got bored, checked cpu % usage:
+</p>
+<pre class="wiki">top
+</pre><p>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_useful_commands/over9000.png"><img width="30%" src="/ay301/raw-attachment/wiki/CM_useful_commands/over9000.png" /></a><br />
+saw i was using over 100% of CPU, so I killed emacs:
+</p>
+<pre class="wiki">kill -9 23814
+</pre><ul><li>emacs is no longer running
+</li></ul><hr />
+<h2 id="TransferDataoverssh">Transfer Data over ssh</h2>
+<ul><li>copy data from ssh server to your comp:
+<pre class="wiki">rsync -vaux -e ssh cmutnik@ay301.ifa.hawaii.edu:[directory/file] [location on own comp]
+# -u, --update                skip files that are newer on the receiver
+</pre><ul><li>ex:
+<pre class="wiki">rsync -avz -e ssh cmutnik@ay301.ifa.hawaii.edu:/home/rr_lyrae/groupings/rrtest.98.99.0.1 ./
+#-z, --compress              compress file data during the transfer
+
+# copy directory tree lsum (with sub-dirs)
+rsync -avz -e ssh cmutnik@ay301.ifa.hawaii.edu:~/lsum .
+</pre></li></ul></li></ul><ul><li>copy data from own comp to ssh server:
+<pre class="wiki">rsync -vaux -e ssh /dir/location/on/own/comp/ cmutnik@ay301.ifa.hawaii.edu:/dir/location/on/server/file.txt
+</pre></li></ul><ul><li>also look into sftp
+</li></ul><hr />
+<hr />
+<h1 id="Python">Python</h1>
+<hr />
+<ul><li>masked array:
+<pre class="wiki">x = [0,.5,1.,1.5,2.]
+y = [10,15,20,25,30]
+
+# choose masked regions
+xma = np.ma.masked_inside(x, 1.35, 1.415)
+xma = np.ma.masked_inside(masked_wave, 1.8, 1.91)
+
+# apply mask to second array
+yma = np.ma.masked_array(y, xma.mask)
+</pre></li></ul><hr />
+<ul><li>append an array:
+<pre class="wiki">a = [1,2,3]
+b = np.append(a,a)
+b = np.append(b,a)
+</pre></li></ul><ul><li>where something is:
+<pre class="wiki"># if you have a set of data: x
+
+# to find what the minimum value of x is
+y = min(x)
+print y
+
+# to find out where in the array the minimum value of x occurs
+z = x.argmin()
+print z
+</pre><ul><li>similar to np.where
+</li></ul></li></ul><hr />
+<h3 id="ipython">ipython</h3>
+<p>
+If you type <tt>ipython</tt> into terminal you need the command <tt>plt.show()</tt> 
+to show anygenerated plots.  To subvert this, forcing plots to appear as you 
+make them, you want an interactive plotting interface.
+</p>
+<ul><li>have interactive ipython plotting:
+<pre class="wiki">ipython --pylab
+</pre></li></ul><p>
+In ipython type 'history' to see what you have typed in that session
+</p>
+<ul><li>history command:
+<pre class="wiki">history
+</pre></li></ul><ul><li>matplotlib.pyplot.savefig arguments:
+<pre class="wiki">import matplotlib.pyplot as plt
+fname = 'myimage.png'
+plt.plot([2,3],[9,20])
+plt.savefig(fname, dpi=None, facecolor='w', edgecolor='w',
+        orientation='portrait', papertype=None, format=None,
+        transparent=False, bbox_inches=None, pad_inches=0.1,
+        frameon=None)
+</pre><ul><li>see what each argument does: 
+<ul><li><a class="ext-link" href="http://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure.savefig"><span class="icon">​</span>http://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure.savefig</a>
+</li></ul></li></ul></li></ul><p>
+To input arguments (stdin), from the command line 
+and into a python script
+</p>
+<ul><li>foofy.py
+<pre class="wiki">yngms = raw_input("Enter numerical val yngms: ")
+oldms = raw_input("Enter numerical val oldms: ")
+print 'yngms:\t' + str(yngms) + '\noldms:\t' + str(oldms)
+</pre><ul><li>in terminal type:
+<pre class="wiki">$python foofy.py
+#&gt;&gt; Enter numerical val yngms: 
+$10
+#&gt;&gt; Enter numerical val oldms: 
+$20
+#&gt;&gt; yngms:    10
+#&gt;&gt; oldms:     20
+</pre></li><li>here, input lines denoted by '$', output lines denoted by '#&gt;&gt;'
+</li></ul></li></ul><hr />
+<h3 id="Drawing">Drawing</h3>
+<ul><li>draw: <a class="ext-link" href="http://blog.thehumangeo.com/2014/05/12/drawing-boundaries-in-python/"><span class="icon">​</span>http://blog.thehumangeo.com/2014/05/12/drawing-boundaries-in-python/</a>
+</li></ul><hr />
+<hr />
+<h2 id="Lookinto">Look into</h2>
+<ul><li>VPN between computers 
+<ul><li>a virtual private network for things like screen sharing
+<ul><li>effectively working off other computer
+</li></ul></li></ul></li><li>TOPCAT<br />
+</li><li>CALLMERGE (cm)
+<ul><li>check JT's Blog for how to use cm to sort stars within threshold degree: <br /><tt>cd /atlas/src/trunk/util/fitshdr</tt>
+</li></ul></li><li>fits header access: <br /><tt>cd /atlas/src/trunk/util/fitshdr</tt>
+</li></ul><hr />
+<p>
+reduce the amount of CPU% i use, so others can:
+<tt>man nice</tt>
+You can use the command "nice"
+or "renice" to adjust the priority of a job or a running job
+</p>
+<p>
+tapcat (ex on JTs CMD wiki): <tt>tapcat 180 20 0.01 -useps -dir /ay302/PS20/CMPR</tt>
+</p>
+<hr />
+</div>
+          
+          <div class="trac-modifiedby">
+            <span><a href="/ay301/wiki/CM_useful_commands?action=diff&amp;version=30" title="Version 30 by cmutnik">Last modified</a> <a class="timeline" href="/ay301/timeline?from=2016-07-20T13%3A29%3A44-10%3A00&amp;precision=second" title="See timeline at Jul 20, 2016, 1:29:44 PM">4 years ago</a></span>
+            <span class="trac-print">Last modified on Jul 20, 2016, 1:29:44 PM</span>
+          </div>
+        
+        
+      </div>
+      
+    <div id="attachments">
+        <h3 class="foldable">Attachments <span class="trac-count">(1)</span></h3>
+        <div>
+          <ul>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_useful_commands/over9000.png" title="View attachment">over9000.png</a><a href="/ay301/raw-attachment/wiki/CM_useful_commands/over9000.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="178742 bytes">174.6 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-04-08T16%3A30%3A03-10%3A00&amp;precision=second" title="See timeline at Apr 8, 2016, 4:30:03 PM">4 years ago</a>.
+              </li>
+          </ul>
+          <p>
+            Download all attachments as: <a rel="nofollow" href="/ay301/zip-attachment/wiki/CM_useful_commands/">.zip</a>
+          </p>
+        </div>
+    </div>
+
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/ay301/wiki/CM_useful_commands?format=txt">Plain Text</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/ay301/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">Powered by <a href="/ay301/about"><strong>Trac 1.0.9</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.</p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+    <div id="sitefooter">
+    </div>
+  </body>
+</html>

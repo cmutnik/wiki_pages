@@ -1,0 +1,43 @@
+{{{
+#done
+done > asn.atlas.obs
+#done > asn.atlas.obs 2>errfile.txt
+}}}
+
+
+----
+Compile a list of all 
+all ddt that should overlap in +/-10days of max
+  ASASSN 16go mjd ra dec age
+{{{
+cd /home/cmutnik/astr399
+mkdir just.keep.matching
+cd just.keep.matching
+# this list is for the rmaining 65
+scp ~/astr399/data/rematch/remaining_SN/fullDat.Remaining.SN.list .
+}}}
+We have already looked at these 65...need to look at the ones that did match. 
+
+----
+1. Isolate SN we care about
+2. See where these SN match to our data
+  - using *.log files from atlas red
+3. for specific id in log file, does a ddt exist?
+
+Match asn SN list with our obs over a 10 day window
+ * modify rematch161011.sh
+  - uses a 10day window 
+  - outputs to asn.10d.atlas
+{{{
+# check how many unique SN there are
+awk '!a[$7]++' asn.10d.atlas > sorted.uniq.10d.txt
+ls | wc -l sorted.uniq.10d.txt
+#>> 70
+}}}
+For a 10 day window\\
+ * 2342 matched 
+ * 
+ * 70 unique SN from
+
+asn.10d.mch are all the matches between asn and atlas logs
+asn.10d.atlas are all the matched between asn and atlas.logs and atlas.ddt

@@ -1,0 +1,530 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+
+
+  <head>
+    <title>
+      CM2Blog – AY301
+    </title>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!--[if IE]><script type="text/javascript">
+      if (/^#__msie303:/.test(window.location.hash))
+        window.location.replace(window.location.hash.replace(/^#__msie303:/, '#'));
+    </script><![endif]-->
+        <link rel="search" href="/ay301/search" />
+        <link rel="help" href="/ay301/wiki/TracGuide" />
+        <link rel="alternate" href="/ay301/wiki/CM2Blog?format=txt" type="text/x-trac-wiki" title="Plain Text" />
+        <link rel="start" href="/ay301/wiki" />
+        <link rel="stylesheet" href="/ay301/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/ay301/chrome/common/css/wiki.css" type="text/css" />
+        <link rel="shortcut icon" href="/ay301/chrome/common/trac.ico" type="image/x-icon" />
+        <link rel="icon" href="/ay301/chrome/common/trac.ico" type="image/x-icon" />
+    <style id="trac-noscript" type="text/css">.trac-noscript { display: none !important }</style>
+      <link type="application/opensearchdescription+xml" rel="search" href="/ay301/search/opensearch" title="Search AY301" />
+      <script type="text/javascript" charset="utf-8" src="/ay301/chrome/common/js/jquery.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/ay301/chrome/common/js/babel.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/ay301/chrome/common/js/trac.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/ay301/chrome/common/js/search.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/ay301/chrome/common/js/folding.js"></script>
+    <script type="text/javascript">
+      jQuery("#trac-noscript").remove();
+      jQuery(document).ready(function($) {
+        $(".trac-autofocus").focus();
+        $(".trac-target-new").attr("target", "_blank");
+        setTimeout(function() { $(".trac-scroll").scrollToTop() }, 1);
+        $(".trac-disable-on-submit").disableOnSubmit();
+      });
+    </script>
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor(_("Link to this section"));
+        $("#content").find(".wikianchor").each(function() {
+          $(this).addAnchor(babel.format(_("Link to #%(id)s"), {id: $(this).attr('id')}));
+        });
+        $(".foldable").enableFolding(true, true);
+      });
+    </script>
+    <link rel="stylesheet" href="/ay301/chrome/site/style.css" />
+  </head>
+  <body>
+    <div id="siteheader">
+    </div>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="/ay301/wiki/TracIni#header_logo-section"><img src="/ay301/chrome/site/icover.png" alt="ASTR 301 2016" /></a>
+      </div>
+      <form id="search" action="/ay301/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/ay301/login">Login</a></li><li><a href="/ay301/prefs">Preferences</a></li><li><a href="/ay301/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/ay301/about">About Trac</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first active"><a href="/ay301/wiki">Wiki</a></li><li><a href="/ay301/timeline">Timeline</a></li><li><a href="/ay301/roadmap">Roadmap</a></li><li><a href="/ay301/report">View Tickets</a></li><li class="last"><a href="/ay301/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="pagepath" class="noprint">
+  <a class="pathentry first" title="View WikiStart" href="/ay301/wiki">wiki:</a><a class="pathentry" href="/ay301/wiki/CM2Blog" title="View CM2Blog">CM2Blog</a>
+</div>
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+        <ul>
+          <li class="first"><a href="/ay301/wiki/WikiStart">Start Page</a></li><li><a href="/ay301/wiki/TitleIndex">Index</a></li><li class="last"><a href="/ay301/wiki/CM2Blog?action=history">History</a></li>
+        </ul>
+        <hr />
+      </div>
+    <div id="content" class="wiki">
+      <div class="wikipage searchable">
+        
+          <div id="wikipage" class="trac-content"><h1 id="Postay301">Post ay301</h1>
+<hr />
+<h3 id="a160606">160606</h3>
+<ul><li>Moving Data 
+</li></ul><p>
+Locations of files rsync to new server:<br />
+</p>
+<table class="wiki">
+<tr><td> on ay301  </td><td style="text-align: center">  on astr01  
+</td></tr><tr><td style="text-align: center">  ~  </td><td style="text-align: center">  /data/astr301-2016/home/cmutnik  
+</td></tr></table>
+<p>
+<tt>/ay303/atlas/*</tt> became <tt>/ay301/atlas/*</tt>
+</p>
+<ul><li>Need to read up on strip 82 stuff
+<ul><li>catch up in RR Lyrae word
+</li></ul></li></ul><hr />
+<h3 id="a160607">160607</h3>
+<ul><li>make histogram of N_stars VS mag to determine mag range
+<pre class="wiki">#!~/bin/python
+# histogram of log(N) VS mag
+# Corey Mutnik
+# 6/7/16
+
+per15stars = ascii.read('starlists/period_allmask_limit15.txt')
+nonper15stars = ascii.read('starlists/nonperiod_allmask_limit15.txt')
+
+per_gmag = per15stars['6.g_Mean_mag']
+nonper_gmag = nonper15stars['6.g_Mean_mag']
+
+# make list of all stars mean g mag
+allstar_gmag = np.append(per_gmag,nonper_gmag)
+
+s = np.array(allstar_gmag)
+xmin = 0
+xmax = 20
+step = 0.5
+y, x = np.histogram(s, bins=np.linspace(xmin, xmax, (xmax-xmin)/step))
+nbins = y.size
+
+plt.clf()
+plt.bar(x[:-1], y, width=x[1]-x[0], color='green', alpha=0.5)
+#plt.hist(s, bins=nbins, alpha=0.5)
+#plt.grid(True)
+#plt.hist(rebinned_data,10, weights=N_stars)
+plt.xlabel('$m_g$')
+plt.ylabel('N')
+plt.yscale('log')
+plt.savefig('log_with_step_0.5.png')
+</pre><ul><li>need linear fit
+</li><li>see where it drops by ~10%
+</li></ul></li></ul><ul><li>before log scale y:
+</li></ul><p>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM2Blog/logit_with_step_0.1.png"><img width="20%" src="/ay301/raw-attachment/wiki/CM2Blog/logit_with_step_0.1.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM2Blog/logit_with_step_0.25.png"><img width="20%" src="/ay301/raw-attachment/wiki/CM2Blog/logit_with_step_0.25.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM2Blog/logit_with_step_0.5.png"><img width="20%" src="/ay301/raw-attachment/wiki/CM2Blog/logit_with_step_0.5.png" /></a>
+</p>
+<ul><li>with log scale y:
+</li></ul><p>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM2Blog/log_with_step_0.1.png"><img width="20%" src="/ay301/raw-attachment/wiki/CM2Blog/log_with_step_0.1.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM2Blog/log_with_step_0.25.png"><img width="20%" src="/ay301/raw-attachment/wiki/CM2Blog/log_with_step_0.25.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM2Blog/log_with_step_0.5.png"><img width="20%" src="/ay301/raw-attachment/wiki/CM2Blog/log_with_step_0.5.png" /></a>
+ 
+</p>
+<ul><li>new xlims: plt.xlim(8.5,18)
+</li></ul><p>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM2Blog/log_with_step_0.1_newlim.png"><img width="20%" src="/ay301/raw-attachment/wiki/CM2Blog/log_with_step_0.1_newlim.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM2Blog/log_with_step_0.25_newlim.png"><img width="20%" src="/ay301/raw-attachment/wiki/CM2Blog/log_with_step_0.25_newlim.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM2Blog/log_with_step_0.5_newlim.png"><img width="20%" src="/ay301/raw-attachment/wiki/CM2Blog/log_with_step_0.5_newlim.png" /></a>
+</p>
+<hr />
+<h3 id="a160810">160810</h3>
+<p>
+Add linear fit to histogram to see where 10% dropoff is
+</p>
+<ul><li>histNlogged.py:
+<pre class="wiki">#!~/bin/python
+# histogram of log(N) VS mag
+# Corey Mutnik
+# 6/7/16
+# Modified 160810
+
+import scipy.optimize as optimized # needed to fit
+import matplotlib.pyplot as plt
+from astropy.io import ascii
+import numpy as np
+
+def linfit(x, m, b):
+	return(m*x + b)
+
+def gaussian(x, a, b, c, d):
+    """
+    Gaussian fit
+    a = peak height, b = peak center, c = width of peak, d = continuum
+    """
+    y = a * np.exp((-(x-b)**2)/(2*c**2)) + d
+    return y
+
+
+#dfile=ascii.read('period_allmask_limit15.txt.chyea')
+#gmag = dfile['col6']
+#s = np.array(gmag)
+
+per15stars = ascii.read('starlists/period_allmask_limit15.txt')
+nonper15stars = ascii.read('starlists/nonperiod_allmask_limit15.txt')
+
+per_gmag = per15stars['6.g_Mean_mag']
+nonper_gmag = nonper15stars['6.g_Mean_mag']
+
+# make list of all stars mean g mag
+allstar_gmag = np.append(per_gmag,nonper_gmag)
+
+s = np.array(allstar_gmag)
+xmin = 0
+xmax = 20
+step = 0.1
+y, x = np.histogram(s, bins=np.linspace(xmin, xmax, (xmax-xmin)/step))
+nbins = y.size
+
+def plot_histogram():
+	plt.clf()
+	plt.bar(x[:-1], y, width=x[1]-x[0], color='green', alpha=0.5)
+	#plt.hist(s, bins=nbins, alpha=0.5)
+	#plt.grid(True)
+	#plt.hist(rebinned_data,10, weights=N_stars)
+	plt.xlabel('$m_g$')
+	plt.ylabel('N')
+	plt.yscale('log')
+	plt.xlim(8.5,18)
+	plt.savefig('log_with_step_0.1_newlim.png')
+#plot_histogram()
+'''
+def plot_hist_w_p():
+	# plot it to see
+	plt.clf()
+	# 2d fit
+	m,b = np.polyfit(x[:-1], y, 1)
+
+	plt.plot(x[:-1], m*x[:-1]+b,'-k')
+	#plt.plot(x[:-1], y, 'or')
+	plt.bar(x[:-1], y, width=x[1]-x[0], color='green', alpha=0.5)
+	plt.xlim(9.2,17.2)
+	plt.xlabel('$m_g$')
+	plt.ylabel('N')
+	#plt.yscale('log')
+plot_hist_w_p()
+'''
+
+# mask out zero values of y array
+ymask = ma.masked_equal(y, 0)
+xmask = np.ma.masked_array(x[:-1], ymask.mask)
+
+'''
+# locate maximum
+ymaxishere = np.where(y==max(y))[0][0]
+# max leaves a lot out so try finding center
+# to find center, fit gaussian
+'''
+
+# initial guesses
+a,b,c,d = 150, 15, 2, 0
+param_gauss, covar_gauss = optimized.curve_fit(gaussian, xmask, ymask, p0=[a,b,c,d])
+
+# set max to be where the gaussian is centered
+hist_center = np.where(param_gauss[1] &lt;= xmask)[0][0]
+
+# where minimum occurs
+yminishere = np.where(np.min(xmask) == xmask)[0][0]
+
+# slice arrays outside of min:max
+yslice = y[yminishere:hist_center]
+xslice = x[:-1][yminishere:hist_center]
+
+# linear fit to data
+#   form beginning to max, excluding 0s
+param, covar = optimized.curve_fit(linfit, xslice, yslice, p0=[1,1])
+y_plot = linfit(xslice, param[0], param[1])
+
+# Extend the linear fit to see where the 10% dropoff is
+extend_fit = linfit(x[:-1], param[0], param[1])
+
+def plot_histo_with_fits():
+	plot_gauss = gaussian(xmask, param_gauss[0], param_gauss[1], param_gauss[2], param_gauss[3])
+	plt.clf()
+	fig, ax = plt.subplots()
+	plt.plot(xslice, yslice, 'or', label='Data for Fit')
+	#plt.plot(xslice, y_plot, 'ok', label='Linear Fit')
+	plt.plot(x[:-1], extend_fit, '.k', label='Linear Fit')# LinearFit Extended
+	plt.plot(xmask, plot_gauss, '--k', label='Gaussian Fit')
+	plt.bar(x[:-1], y, width=x[1]-x[0], color='green', alpha=0.5, label='Original Data')
+	#plt.xlim(9.2,17.2)
+	plt.xlabel('$m_g$')
+	plt.ylabel('N')
+	#plt.yscale('log')
+	plt.legend(loc=2)
+	plt.xlim(9.2,17.2)
+	plt.ylim(0,200)
+	fig.subplots_adjust(left=0.125)
+	plt.savefig('hist_with_fits_extended_fit.png')
+plot_histo_with_fits()
+</pre></li></ul><p>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM2Blog/hist_with_fits.png"><img width="30%" src="/ay301/raw-attachment/wiki/CM2Blog/hist_with_fits.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM2Blog/hist_with_fits_extended_fit.png"><img width="30%" src="/ay301/raw-attachment/wiki/CM2Blog/hist_with_fits_extended_fit.png" /></a>
+</p>
+<ul><li>looks like mag drop is at ~16.2
+</li><li>12 &lt; m_g &lt; 16.5
+</li></ul><hr />
+<h3 id="a160815">160815</h3>
+<p>
+Spoke with Conor and modified code
+</p>
+<pre class="wiki">#!~/bin/python
+# histogram of log(N) VS mag
+# Corey Mutnik
+# 6/7/16
+# Modified 160810
+
+import scipy.optimize as optimized # needed to fit
+import matplotlib.pyplot as plt
+from astropy.io import ascii
+import numpy as np
+
+def linfit(x, m, b):
+	return(m*x + b)
+
+#dfile=ascii.read('period_allmask_limit15.txt.chyea')
+#gmag = dfile['col6']
+#s = np.array(gmag)
+
+per15stars = ascii.read('starlists/period_allmask_limit15.txt')
+nonper15stars = ascii.read('starlists/nonperiod_allmask_limit15.txt')
+
+per_gmag = per15stars['6.g_Mean_mag']
+nonper_gmag = nonper15stars['6.g_Mean_mag']
+
+# make list of all stars mean g mag
+allstar_gmag = np.append(per_gmag,nonper_gmag)
+
+s = np.array(allstar_gmag)
+xmin = 0
+xmax = 20
+step = 0.2
+y, x = np.histogram(s, bins=np.linspace(xmin, xmax, (xmax-xmin)/step))
+nbins = y.size
+
+def plot_histogram():
+	plt.clf()
+	fig, ax = plt.subplots()
+	plt.bar(x[:-1], y, width=x[1]-x[0], color='green', alpha=0.5)
+	#plt.hist(s, bins=nbins, alpha=0.5)
+	#plt.grid(True)
+	#plt.hist(rebinned_data,10, weights=N_stars)
+	plt.xlabel('$m_g$')
+	plt.ylabel('N')
+	plt.yscale('log')
+	plt.xlim(8.5,18)
+	#plt.xlim(9.2,17.2)
+	#plt.ylim(0,200)
+	fig.subplots_adjust(left=0.125)
+	#plt.show()
+	plt.savefig('log_with_step_0.2_newlim.png')
+plot_histogram()
+
+
+# log y bin values
+y = np.log10(y)
+
+# final value where x is less than 13.3
+uplim = np.where(x[:-1]&lt;=13.3)[0][-1]
+lowlim = np.where(x[:-1]&gt;=10.5)[0][0]
+
+# slice arrays to only include values between upper and lower limits
+newX = x[:-1][lowlim:uplim]
+newY = y[lowlim:uplim]
+
+# linear fit to desired points
+param, covar = optimized.curve_fit(linfit, newX, newY, p0=[1,1])
+
+# for plotting fit
+y_plot = linfit(newX, param[0], param[1])
+y_plot_full = linfit(x[:-1], param[0], param[1])
+
+def plot_hist_linfit():
+	plt.clf()
+	fig, ax = plt.subplots()
+	plt.bar(x[:-1], y, width=x[1]-x[0], color='green', alpha=0.5, label='Binned data')
+	plt.plot(newX,newY,'r.', label="Pts for Linfit")
+	#plt.plot(newX, linfit(newX, *param), 'r-', label="({0:.3f}*x**{1:.3f})".format(*param))
+	plt.plot(x[:-1], y_plot_full, 'b--', label='Extended LinFit')
+	plt.plot(newX, y_plot, 'r--', label='LinFit to log(y)')
+	plt.xlabel('$m_g$')
+	plt.ylabel('log(N)')
+	#plt.yscale('log')
+	plt.xlim(8.5,18)
+	#plt.xlim(9.2,17.2)
+	plt.ylim(0,3)
+	fig.subplots_adjust(left=0.125)
+	plt.legend(loc=2)
+	plt.savefig('hist_linfit_160815.png')
+plot_hist_linfit()
+</pre><ul><li>histogram array logged
+<ul><li>power law: linear in log-log fit
+</li></ul></li><li>need to
+<ul><li>compare different bin sizes
+<ul><li>step=0.2
+</li><li>step=0.25
+</li></ul></li><li>Fit where 10% deviation occurs
+</li></ul></li></ul><ul><li>Step size of 0.2
+</li></ul><p>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM2Blog/log_with_step_0.2_newlim.png"><img width="20%" src="/ay301/raw-attachment/wiki/CM2Blog/log_with_step_0.2_newlim.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM2Blog/hist_linfit_160815.png"><img width="20%" src="/ay301/raw-attachment/wiki/CM2Blog/hist_linfit_160815.png" /></a>
+</p>
+<ul><li>Step size of 0.25
+</li></ul><p>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM2Blog/log_with_step_0.25_newlim.png"><img width="20%" src="/ay301/raw-attachment/wiki/CM2Blog/log_with_step_0.25_newlim.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM2Blog/hist_linfit_step0.25_160815.png"><img width="20%" src="/ay301/raw-attachment/wiki/CM2Blog/hist_linfit_step0.25_160815.png" /></a>
+</p>
+<hr />
+<hr />
+<h3 id="Ref">Ref</h3>
+<p>
+Stripe 82:<br /> <a class="ext-link" href="http://www.princeton.edu/astro/news-events/public-events/stripe-82/slides/Ivezic-SDSS-Star-Catalog.pdf"><span class="icon">​</span>http://www.princeton.edu/astro/news-events/public-events/stripe-82/slides/Ivezic-SDSS-Star-Catalog.pdf</a>
+</p>
+</div>
+          
+          <div class="trac-modifiedby">
+            <span><a href="/ay301/wiki/CM2Blog?action=diff&amp;version=15" title="Version 15 by cmutnik">Last modified</a> <a class="timeline" href="/ay301/timeline?from=2016-08-15T12%3A54%3A18-10%3A00&amp;precision=second" title="See timeline at Aug 15, 2016, 12:54:18 PM">4 years ago</a></span>
+            <span class="trac-print">Last modified on Aug 15, 2016, 12:54:18 PM</span>
+          </div>
+        
+        
+      </div>
+      
+    <div id="attachments">
+        <h3 class="foldable">Attachments <span class="trac-count">(15)</span></h3>
+        <div>
+          <ul>
+              <li>
+    <a href="/ay301/attachment/wiki/CM2Blog/log_with_step_0.5.png" title="View attachment">log_with_step_0.5.png</a><a href="/ay301/raw-attachment/wiki/CM2Blog/log_with_step_0.5.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="17775 bytes">17.4 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-06-08T04%3A21%3A55-10%3A00&amp;precision=second" title="See timeline at Jun 8, 2016, 4:21:55 AM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM2Blog/log_with_step_0.25.png" title="View attachment">log_with_step_0.25.png</a><a href="/ay301/raw-attachment/wiki/CM2Blog/log_with_step_0.25.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="18718 bytes">18.3 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-06-08T04%3A22%3A00-10%3A00&amp;precision=second" title="See timeline at Jun 8, 2016, 4:22:00 AM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM2Blog/logit_with_step_0.5.png" title="View attachment">logit_with_step_0.5.png</a><a href="/ay301/raw-attachment/wiki/CM2Blog/logit_with_step_0.5.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="23932 bytes">23.4 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-06-08T04%3A22%3A06-10%3A00&amp;precision=second" title="See timeline at Jun 8, 2016, 4:22:06 AM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM2Blog/logit_with_step_0.25.png" title="View attachment">logit_with_step_0.25.png</a><a href="/ay301/raw-attachment/wiki/CM2Blog/logit_with_step_0.25.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="25584 bytes">25.0 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-06-08T04%3A22%3A12-10%3A00&amp;precision=second" title="See timeline at Jun 8, 2016, 4:22:12 AM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM2Blog/log_with_step_0.1.png" title="View attachment">log_with_step_0.1.png</a><a href="/ay301/raw-attachment/wiki/CM2Blog/log_with_step_0.1.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="20290 bytes">19.8 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-06-08T04%3A23%3A50-10%3A00&amp;precision=second" title="See timeline at Jun 8, 2016, 4:23:50 AM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM2Blog/logit_with_step_0.1.png" title="View attachment">logit_with_step_0.1.png</a><a href="/ay301/raw-attachment/wiki/CM2Blog/logit_with_step_0.1.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="26408 bytes">25.8 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-06-08T04%3A23%3A56-10%3A00&amp;precision=second" title="See timeline at Jun 8, 2016, 4:23:56 AM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM2Blog/log_with_step_0.5_newlim.png" title="View attachment">log_with_step_0.5_newlim.png</a><a href="/ay301/raw-attachment/wiki/CM2Blog/log_with_step_0.5_newlim.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="18305 bytes">17.9 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-06-08T04%3A27%3A39-10%3A00&amp;precision=second" title="See timeline at Jun 8, 2016, 4:27:39 AM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM2Blog/log_with_step_0.1_newlim.png" title="View attachment">log_with_step_0.1_newlim.png</a><a href="/ay301/raw-attachment/wiki/CM2Blog/log_with_step_0.1_newlim.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="21044 bytes">20.6 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-06-08T04%3A27%3A45-10%3A00&amp;precision=second" title="See timeline at Jun 8, 2016, 4:27:45 AM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM2Blog/hist_with_fits_extended_fit.png" title="View attachment">hist_with_fits_extended_fit.png</a><a href="/ay301/raw-attachment/wiki/CM2Blog/hist_with_fits_extended_fit.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="58493 bytes">57.1 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-08-10T17%3A40%3A29-10%3A00&amp;precision=second" title="See timeline at Aug 10, 2016, 5:40:29 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM2Blog/hist_with_fits.png" title="View attachment">hist_with_fits.png</a><a href="/ay301/raw-attachment/wiki/CM2Blog/hist_with_fits.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="60009 bytes">58.6 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-08-10T17%3A40%3A36-10%3A00&amp;precision=second" title="See timeline at Aug 10, 2016, 5:40:36 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM2Blog/hist_linfit_160815.png" title="View attachment">hist_linfit_160815.png</a><a href="/ay301/raw-attachment/wiki/CM2Blog/hist_linfit_160815.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="43213 bytes">42.2 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-08-15T12%3A53%3A34-10%3A00&amp;precision=second" title="See timeline at Aug 15, 2016, 12:53:34 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM2Blog/hist_linfit_step0.25_160815.png" title="View attachment">hist_linfit_step0.25_160815.png</a><a href="/ay301/raw-attachment/wiki/CM2Blog/hist_linfit_step0.25_160815.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="41470 bytes">40.5 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-08-15T12%3A53%3A40-10%3A00&amp;precision=second" title="See timeline at Aug 15, 2016, 12:53:40 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM2Blog/log_with_step_0.2_newlim.png" title="View attachment">log_with_step_0.2_newlim.png</a><a href="/ay301/raw-attachment/wiki/CM2Blog/log_with_step_0.2_newlim.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="19844 bytes">19.4 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-08-15T12%3A53%3A47-10%3A00&amp;precision=second" title="See timeline at Aug 15, 2016, 12:53:47 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM2Blog/log_with_step_0.25_newlim.png" title="View attachment">log_with_step_0.25_newlim.png</a><a href="/ay301/raw-attachment/wiki/CM2Blog/log_with_step_0.25_newlim.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="19316 bytes">18.9 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-08-15T12%3A53%3A52-10%3A00&amp;precision=second" title="See timeline at Aug 15, 2016, 12:53:52 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM2Blog/histNlogged.py" title="View attachment">histNlogged.py</a><a href="/ay301/raw-attachment/wiki/CM2Blog/histNlogged.py" class="trac-rawlink" title="Download">​</a>
+       (<span title="5066 bytes">4.9 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-08-15T12%3A53%3A59-10%3A00&amp;precision=second" title="See timeline at Aug 15, 2016, 12:53:59 PM">4 years ago</a>.
+              </li>
+          </ul>
+          <p>
+            Download all attachments as: <a rel="nofollow" href="/ay301/zip-attachment/wiki/CM2Blog/">.zip</a>
+          </p>
+        </div>
+    </div>
+
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/ay301/wiki/CM2Blog?format=txt">Plain Text</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/ay301/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">Powered by <a href="/ay301/about"><strong>Trac 1.0.9</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.</p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+    <div id="sitefooter">
+    </div>
+  </body>
+</html>

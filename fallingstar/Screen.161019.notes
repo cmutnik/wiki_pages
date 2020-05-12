@@ -1,0 +1,348 @@
+= Corey's Screen Management Page =
+----
+
+=== Notes on Screen ===
+
+ * [https://atlas.fallingstar.com/atlas/trac/wiki/useful#SCREEN Notes on Screen]
+  - These were copied from [http://astr01.ifa.hawaii.edu/trac/wiki/CM_useful_commands#SCREEN ASTR301 screen notes]
+
+----
+=== 160906 ===
+ * finished & killed
+{{{
+screen -r atdiff
+cd /atlas-diff/02a/57455
+}}}
+  - for ASTR399
+
+ * finished and killed
+{{{
+screen -r webbtmp
+cd /mops/htdocs/dash
+}}}
+  - for plani square
+
+
+----
+=== 160908 ===
+
+ * finished and killed
+{{{
+screen -r vartest
+}}}
+  - try to find vartest program
+  - see what airy did
+
+----
+=== 160911 ===
+ * finished
+{{{
+screen -r scan
+cd /atlas-diff/02a/57591/LINK
+}}}
+  - pulling link files
+  - started at 9:49pm
+  - forgot to preserve dir tree
+  - removed this dir
+{{{
+cd ../
+rm -rf linked_files/
+}}}
+
+----
+=== 160911 ===
+ * finished
+{{{
+screen -r scan
+rsync -R /atlas-diff/02a/57*/LINK/ /home/cmutnik/astr399/linked
+}}}
+  - pulling link files
+  - doing so recursively, as to preserve dir tree
+
+----
+=== 160918 ===
+ * finished and killed
+{{{
+screen -r scan
+cd /home/cmutnik/astr399/linked
+grep Obj *.lnk > ../all_linked_objs.cor
+}}}
+  - make file composed of all linked objs
+
+----
+=== 160920 ===
+ * finished and killed
+{{{
+screen -r links
+cd /atlas/diff/02a
+
+# make lisk of link files that aren't in own "LINK" subdir
+ls 5*/*.lnk > ~/astr399/files.not.in.LINK.dir.cor
+}}}
+
+ * finished
+{{{
+cd /atlas-diff/02a/57639
+screen -r ddt
+# list all ddt files
+ls *.ddt
+# list all diff files
+ls *.diff.fz
+}}}
+ * try cm ASN data with *.diff.fz 
+
+----
+=== 160921 ===
+ * finished
+{{{
+screen -r ddt
+cd /home/cmutnik/astr399/matched
+
+# compare ASN list with all ATLAS ddt files
+cm 5,4 sn_list_full.txt 2,1 /atlas-diff/02a/5*/*.ddt -tol 0.001 > ddt.asn.tol0.001.match
+}}}
+
+----
+=== 160922 ===
+ * finished and killed
+{{{
+screen -r ddt
+}}}
+  - used to cm ASN data with all ddt files after previous trials failed
+
+----
+=== 161004 ===
+ * finished and killed
+{{{
+screen -S lin
+cd ~/astr399/data/linked/
+
+# make file for link files not in separate "LINK" dir
+grep Obj /atlas-diff/02a/5*/TA*.lnk > no.sep.dir.57320.57511.lnk
+
+# make file for link files in separate "LINK" dir
+grep Obj /atlas-diff/02a/5*/LINK/TA*.lnk > sep.dir.upto.57664.lnk
+}}}
+
+ * finished and killed
+{{{
+screen -r linky
+cd /data/home/cmutnik/astr399/data/linked
+cm 12,11,10 ../asn_data/assasn.atlas.10days 9,8,7 links.57320.57664.lnk > asn.lnk.match
+}}}
+
+ * finished and killed
+{{{
+screen -r linkyTol
+cd /data/home/cmutnik/astr399/data/linked
+cm 12,11,10 ../asn_data/assasn.atlas.10days 9,8,7 links.57320.57664.lnk -tol 0.01,d,10 > cmasn/tol.asn.lnk.match
+}}}
+
+ * finished and killed
+{{{
+screen -r linkyNonRel
+cd /data/home/cmutnik/astr399/data/linked
+cm 12,11,10 /data/home/cmutnik/astr399/data/asn_data/assasn.atlas.10days 9,8,7 /data/home/cmutnik/astr399/data/linked/links.57320.57664.lnk > cmasn/nonrel.asn.lnk.match
+}}}
+
+----
+=== 161006 ===
+ * finished/fixed and killed
+{{{
+screen -r nocm
+
+cd /home/cmutnik/astr399/data/linked
+
+# tried using cm but it failed with error
+}}}
+  - error
+ {{{
+ The program 'cm' is currently not installed. To run 'cm' please ask your administrator to install the package 'config-manager'
+ }}}
+
+ * finished and killed 
+{{{
+screen -r links
+cd ~/astr399/data/linked
+cm 12,11,10 ../asn_data/assasn.atlas.10days 9,8,7 links.57320.57664.lnk -tol 0.001,d,10 > cmasn/tol0.001.asn.lnk.match
+}}}
+
+ * finished and killed 
+{{{
+# cm using non-relative links with tolerance
+screen -r nr
+cd ~/astr399/data/linked
+cm 12,11,10 ~/astr399/data/asn_data/assasn.atlas.10days 9,8,7 ~/astr399/data/linked/links.57320.57664.lnk -tol 0.01,d,10 > cmasn/nonrel.tol0.01.asn.lnk.match
+}}}
+
+ * finished and killed 
+{{{
+# cm using non-relative links with more restrictive tol
+screen -Srnrt2
+cd ~/astr399/data/linked
+cm 12,11,10 ~/astr399/data/asn_data/assasn.atlas.10days 9,8,7 ~/astr399/data/linked/links.57320.57664.lnk -tol 0.001,d,10 > cmasn/nonrel.tol0.001.asn.lnk.match
+}}}
+
+ * finished and killed
+{{{
+screen -r varmod
+./SN.LC.sh
+# fails
+
+./lnk.SN.LC.sh
+}}}
+
+ * running
+{{{
+screen -r asn.log
+cd ~/astr399/data/linked
+
+cm 12,11 ../asn_data/assasn.atlas.10days 12,11 /atlas/red/02a/*/*.log -tol 0.001,d > cmasn/asn.log.match
+}}}
+
+
+----
+=== 161010 ===
+ * finished and killed
+{{{
+screen -r skyscout
+# example of how to use Ari's stamp pulling program "skyscout"
+}}}
+
+ * finished
+{{{
+screen -r searchlistPaths
+cd ~/astr399/data/skyscout
+}}}
+  - remaking searchlist.txt to include dir paths
+
+ * finished
+{{{
+screen -r rematch
+cd ~/astr399/data/rematch
+./rematch.sh
+}}}
+
+----
+=== 161011 ===
+ * finished
+{{{
+screen -r rematch
+cd ~/astr399/data/rematch
+# running rematch script with new SN list for 50 day interval
+}}}
+
+ * finished and killed
+{{{
+screen -r rematch
+cd ~/astr399/data/rematch
+
+# script to match with 15 day window
+./rematch161011.sh
+}}}
+
+ * finished and killed
+{{{
+screen -r searchlistPaths
+cd ~/astr399/data/skyscout/testC_with_paths
+skyscout02 ../searchlist.with.paths.txt ASASSN-16ke_ephem.txt 3.5 150 3 ASASSNtestC_paths ASASSNtestC_paths.txt
+}}}
+
+----
+=== 161013 ===
+ * finished and killed
+{{{
+screen -r searchlistPaths
+cd ~/astr399/data/skyscout/testC_with_paths
+skyscout02 ../searchlist.with.paths.txt ASASSN-16ke_ephem.txt 3.5 150 3 ASASSNtestC_paths ASASSNtestC_paths.txt
+}}}
+
+ * finished
+{{{
+screen -r ddt_skyscout
+cd ~/astr399/data/skyscout
+./ddt.searchlist.sh
+}}}
+
+ * finished and killed
+{{{
+screen -r 15oz
+cd ~/astr399/data/skyscout/ASASSN-15oz
+skyscout02 ../searchlist.with.paths.txt ASASSN-15oz.ephem.txt 3.5 150 3 ASASSN-15oz ASASSN-15oz.txt
+}}}
+
+ * finished and killed
+{{{
+screen -r 16bv
+cd ~/astr399/data/skyscout/ASASSN-16bv
+skyscout02 ../searchlist.with.paths.txt ASASSN-16bv.ephem.txt 3.5 150 3 ASASSN-16bv ASASSN-16bv.txt
+}}}
+
+ * finished and killed
+{{{
+screen -r 15lo
+cd ~/astr399/data/skyscout/ASASSN-15lo
+skyscout02 ../searchlist.with.paths.txt ASASSN-15lo.ephem.txt 3.5 150 3 ASASSN-15lo ASASSN-15lo.txt
+}}}
+
+ * finished and killed
+{{{
+screen -r 16fh
+cd ~/astr399/data/skyscout/ASASSN-16fh
+skyscout02 ../searchlist.with.paths.txt ASASSN-16fh.ephem.txt 3.5 150 3 ASASSN-16fh ASASSN-16fh.txt
+}}}
+
+ * finished and killed
+{{{
+screen -r 16je
+cd /astr399/data/skyscout/ASASSN-16je
+skyscout02 ../searchlist.with.paths.txt ASASSN-16je.ephem.txt 3.5 150 3 ASASSN-16je ASASSN-16je.txt
+}}}
+
+ * finished and killed
+{{{
+screen -r 15sb
+cd ~/astr399/data/skyscout/ASASSN-15sb
+skyscout02 ../searchlist.with.paths.txt ASASSN-15sb.ephem.txt 3.5 150 3 ASASSN-15sb ASASSN-15sb.txt
+}}}
+
+ * finished and killed
+{{{
+screen -r 16gf
+cd ~/astr399/data/skyscout/ASASSN-16gf
+skyscout02 ../searchlist.with.paths.txt ASASSN-16gf.ephem.txt 3.5 150 3 ASASSN-16gf ASASSN-16gf.txt
+}}}
+
+----
+=== 161014 ===
+ * running
+{{{
+screen -r ddt_skyscout
+cd ~/astr399/data/skyscout
+skyscout02 ../diff.searchlist.txt ASASSN-15oz.ephem.txt 3.5 150 3 diff_ASASSN-15oz diff_ASASSN-15oz.txt
+}}}
+
+----
+=== 161018 ===
+ * killed
+{{{
+screen -r lnkmch
+}}}
+Process took to long, so it was killed before it finished.
+
+ * finished
+{{{
+screen -r links
+cd ~/astr399/just.keep.matching
+# trying to match good SN to link files, using ra/dec
+}}}
+
+----
+=== 161019 ===
+ * running
+{{{
+screen -r links
+cd 
+# match good SN to link files, using x/y coordinates
+./run.next.sh
+}}}

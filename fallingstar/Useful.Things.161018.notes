@@ -1,0 +1,461 @@
+= A page of useful things I have come across =
+
+Things are known to work in the OS they are listed under,
+they have been tested but only for particular OS.  They are not 
+guaranteed to be universally applicable.
+
+ * [http://astr01.ifa.hawaii.edu/trac/wiki/CM_useful_commands Useful Things from ASTR301]
+----
+----
+= Wiki =
+
+ * [https://atlas.fallingstar.com/atlas/trac/wiki/WikiFormatting Wiki Formatting]
+
+----
+ code highlighting::
+{{{
+#!python
+class Test:
+
+    def __init__(self):
+        print "Hello World"
+if __name__ == '__main__':
+   Test()
+}}}
+
+----
+ editor comments::
+   <This you can see>[[br]]
+{{{
+#!comment
+THIS YOU CAN'T
+
+"[[br]]" is a linebreak
+}}}
+   <What can't you?>
+
+----
+ * place and access anchors
+
+[#locbi Click to go to the "Locate Binary" anchor (below)]
+
+
+----
+----
+= Command Line =
+
+ Finding Files::
+   * Locate Binary files and desired paths [=#locbi]
+{{{
+# which should be used mainly/only in csh terminals
+which
+
+# locate the binary path of which
+command -v which
+
+# this one also works well and has a useful man page
+whereis which
+# locate binary file
+whereis -b which
+# locate manual
+whereis -m which
+}}}
+  - Linux
+
+
+----
+ Typo::
+To correct a typo in previous line of code you use {{{^[typo]^[desired cmd]}}}
+ * EX:
+{{{
+# say you wanted to print column 2 of file "hi.mom"
+#   but you type the following command (printing column 1)
+awk '{print $1}' hi.mom
+
+# to correct this typo and print column 2
+^$1^$2
+}}}
+Convenient for many thing, especially fixing errors 
+in the middle of long stings of code\\
+
+This is also nice because - when you press the 
+[up arrow] to retrieve your previous command the 
+typo has been replaced by your correction
+{{{
+[up arrow]
+$ awk '{print $2}' hi.mom
+}}}
+
+----
+ awk::
+{{{
+awk -F, 'BEGIN{OFS="|";} {print $1, $4, $8, $11, $15;}' infile.csv > outfile.csv
+}}}
+  - Pull columns from csv table
+  - input delimited by ,
+  - output delimited by |
+  - only pulled needed columns
+
+----
+ copying files::
+{{{
+# copy "file1" from home directory into "/tmp/"
+cp ~/file1 /tmp/.
+scp ~/file1 /tmp/.
+rsync ~/file1 /tmp/.
+
+# to copy the file "foo.txt" from server into a dir on local comp
+rsync -avz -e ssh cmutnik@atlas-base-adm01.ifa.hawaii.edu:/home/cmutnik/foo.txt /Users/cmutnik/work/classes/ASTR399/
+}}}
+Read man page for what flags do
+You can also use things like sftp to move files between remote locations
+
+----
+ wget and curl::
+{{{
+# pull a file from a designated url
+wget http://www2.hawaii.edu/~cmutnik/final.pdf
+
+# use curl to pull file
+curl -O example.com/file.zip
+}}}
+
+----
+ [=#SCREEN]screen::
+   in ssh use screen in case pipeline break it will keep working
+   ...[cntrl] a; d; is attach detach...and come back to the screen
+
+ * [https://atlas.fallingstar.com/atlas/trac/wiki/coreyscreen Manage Screens Blog]
+
+{{{
+screen -L     # starts new screen
+screen -r     # lists or resumes session
+[cntrl] a; d    # attach; detach
+screen -S named    # names new session: '*.named'
+screen -X -S [session id] quit    # kills running session
+}}}
+ * Linux and Mac
+ * keep typing screen -L to make new screens, and screen -r to see the screens that are open
+ * do NOT make plots in screen
+  - detached screen does not having plotting interface
+  - attached screen may not either
+
+----
+ FITS Header::
+print fits header to standard output
+{{{
+fold -w 80 [file.fits] | more
+}}}
+ * Ex:
+{{{
+fold -w 80 F3V_HD26015_rayner.fits | more
+}}}
+
+Another way of access this is by using JT's program 'fitshdr'. 
+Obviously using this requires you have properly installed 'fitshdr' 
+on your local computer
+{{{
+man fitshdr
+}}}
+
+----
+ PATH::
+
+ * append to path
+{{{
+# appends your .bashrc file to add the new dir to your existing path
+echo 'set PATH=$PATH:/new/dir' >> ~/.bashrc
+}}}
+  - check by echoing path
+{{{
+echo $PATH
+}}}
+
+ * locate something that is not in your path
+{{{
+# this will show anything with 'vartest' in it...a lot of info
+locate vartest
+
+# program specific searches should only look for things in a bin folder
+locate vartest | fgrep -w bin
+}}}
+
+----
+ Sort::
+
+Sort objects in file based on specified column
+{{{
+sort -g -t' ' -k3,3 [file]
+}}}
+ * -g: sorts using generic numerical value
+ * -u: print only unique lines
+ * -t: specify delimiter
+ * -k3,3: sort on third field
+
+Count the number of unique items in column 7 of file "/tmp/assasn.atlas"
+{{{
+awk '{print $7}' /tmp/assasn.atlas | sort | uniq | wc
+}}}
+
+Using awk, sort out only unique items in column 7
+{{{
+awk '!a[$7]++' assasn.atlas.10days
+}}}
+
+
+
+----
+----
+= Linux =
+
+ * System information:
+{{{
+# Version number
+uname -a
+
+# Distribution information
+lsb_release -a
+
+# More ways of accessing similar information
+cat /etc/lsb-release
+cat /etc/issue.net
+}}}
+  - read man pages for differences
+
+
+----
+ Ubuntu Specific::
+
+ * font
+{{{
+# To modify the font in a terminal window
+sudo dpkg-reconfigure console-setup
+}}}
+
+ * shutdown
+{{{
+sudo shutdown -P now
+}}}
+  - requires sudo
+
+----
+ Ethernet Connection Setup::
+ * internet connection (wired)
+{{{
+# Displays hardware (network connects)
+#   "-c" stands for "-class"
+sudo lshw -c network 
+
+# check if 'eth0' in my case it was 'em1'
+ifconfig -a
+}}}
+
+[[br]][[br]]
+To setup an ethernet connection...if you're plugged into a router that 
+automatically gives out IP's (DHCP)
+ * Static IP
+{{{
+# configure a interface permanently by modifying file
+sudo emacs /etc/network/interfaces
+}}}
+  - Example of file of "/etc/network/interfaces": [[Image(etc.network.interfaces,10%)]]
+{{{
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# The Primary Network Interface
+iface eth0 inet static 						
+      address xxx.xxx.xxx,xxx
+      netmask xxx.xxx.xxx.xxx
+      gateway xxx.xxx.xxx.xxx
+      network xxx.xxx.xxx.xxx
+}}}
+  - In this EX, each 'x' represents a number
+  - Not all 'x' are the same number
+
+
+
+ * DHCP
+{{{
+# using a router that auto-assigns IPs (DHCP)
+sudo dhclient -r
+
+# for me - my interface file shows to use em1 not eth0
+#sudo dhclient eth0
+sudo dhclient em1
+
+# test with ping, to see if it worked
+ping 8.8.8.8
+#>>PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data
+#>>64 bytes from 8.8.8.8: icmp_seq=1 ttl=55 time=54.0 ms
+#>>64 bytes from 8.8.8.8: icmp_seq=3 ttl=55 time=53.9 ms
+#>>[...]
+}}}
+  - EX of other ways to test if a connection is established
+{{{
+# see if connections are made
+ping yahoo.com
+
+# pull a file from a designated url
+wget http://www2.hawaii.edu/~cmutnik/final.pdf
+
+# use curl to pull file
+curl -O example.com/file.zip
+}}}
+
+
+----
+ Hardware::
+
+Get information on the hardware connected to your system
+{{{
+# Hardware info
+sudo lshw -short
+
+# list pci buses and details
+lspci
+# use grep filter for specific device
+lspci -v | grep "VGA" -A 12
+
+# list usb buses and details
+lsusb
+
+# sata devices and HDD info
+hdparm
+}}}
+  - sudo is usually not needed, but lshw prompts for it
+
+----
+== OpenSuSE specific ==
+ version::
+check version number (and other info)
+{{{
+cat /etc/SuSE-release
+}}}
+
+----
+ installation::
+OpenSuSE sucks, migrate to Ubuntu, Kali, or something already...okay,
+if you insist on using OpenSuSE - here is an 'apt-get' equivalent
+ * apt-get:
+{{{
+# rather than "sudo apt-get install [thingy]"
+#   OpenSuSE uses "zypper"
+sudo zypper install [thingy]
+}}}
+
+----
+ open::
+On Mac OS X the command 'open' is very versatile. It opens files and 
+directories.  Opening a directory gives you access to the file system 
+through 'finder'. A file is opened using the proper program, based on 
+the type of file it is. Sadly this doesn't exist on linux, but a similar 
+command does. Use it, or alias it under the name 'open'.
+{{{
+# Mac - open home dir using finder
+open ~
+
+# Linux - opens home dir as a filesystem, in a web browser
+xdg-open ~
+}}}
+
+It is useful to alias this linux command into you bashrc. This 
+allows you to use abbreviations for commonly used commands.
+{{{
+# add the alias to the end of your *rc files, using echo
+echo "alias open='xdg-open'" >> ~/.bashrc
+
+# for tcsc, syntax varies slightly
+echo "alias open 'xdg-open'" >> ~/.tcshrc
+}}}
+  - tested to work in OpenSusE
+  - don't forget to restart your term, to implement changes
+
+
+----
+ cm / colmerge ::
+Both programs were written by JT. Although cm is an abbreviation for 
+colmerge, the programs themselves are slightly different.  Since I have 
+only used cm, any instructions here were written for 'cm' not 'colmerge'.
+ * from cm man page
+{{{
+Paste together file1 and file2 line by line:
+
+    cm 0 file1 0 file2
+}}}
+
+
+----
+ LaTex::
+To add latex-style formatting and equations to things like emails:
+ 1. go somewhere like [http://www.texpaste.com/ here]
+ 2. enter what is to be written
+ 3. 'compile'
+ 4. copy output and paste into email
+
+
+
+----
+----
+= Code =
+
+ Sourcing a file::
+To execute source files, use a shebang "#!"...this is used for shell scripts as well as 
+languages like python...here is an example using python
+ * example.py:
+{{{
+#!/usr/bin/env python
+'''
+Include shebang on top line of code - says to execute using Python by 
+looking up the path to the Python interpreter automatically via env
+'''
+print "hi mom"
+}}}
+
+before the code can be executed, you must change permissions
+{{{
+chmod +x example.py
+
+# sometimes the flag 'a' is needed
+chmod a+x example.py
+}}}
+
+now the code can be executed in the following way
+{{{
+./example.py
+}}}
+
+----
+ Custom Man Pages::
+To install custom man pages on Mac OSX check your man path, 
+this is assuming the man pages are formatted properly and can 
+be opened.
+{{{
+echo $MANPATH
+}}}
+Make sure custom man pages are created and installed in 
+proper in proper directory.\\
+Example
+{{{
+# Locate man pages into dir, creating it if needed
+cd  ~/man/man1
+
+# change man pages from *.man to *.1
+scp ~/trunk/cm/cm.man .
+mv cm.man cm.1
+}}}
+Reload terminal and man page for cm should work
+{{{
+man cm
+}}}
+
+----
+----
+= Useful Links =
+ * [http://www.tldp.org/LDP/abs/html/abs-guide.html Useful Bash Page]
+ * [https://github.com/vic317yeh/One-Click-to-Be-Pro One Click Pro (git)]
+ * [www.hacksplaining.com hacking]

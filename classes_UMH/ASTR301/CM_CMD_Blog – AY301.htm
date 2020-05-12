@@ -1,0 +1,731 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+
+
+  <head>
+    <title>
+      CM_CMD_Blog – AY301
+    </title>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!--[if IE]><script type="text/javascript">
+      if (/^#__msie303:/.test(window.location.hash))
+        window.location.replace(window.location.hash.replace(/^#__msie303:/, '#'));
+    </script><![endif]-->
+        <link rel="search" href="/ay301/search" />
+        <link rel="help" href="/ay301/wiki/TracGuide" />
+        <link rel="alternate" href="/ay301/wiki/CM_CMD_Blog?format=txt" type="text/x-trac-wiki" title="Plain Text" />
+        <link rel="start" href="/ay301/wiki" />
+        <link rel="stylesheet" href="/ay301/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/ay301/chrome/common/css/wiki.css" type="text/css" />
+        <link rel="shortcut icon" href="/ay301/chrome/common/trac.ico" type="image/x-icon" />
+        <link rel="icon" href="/ay301/chrome/common/trac.ico" type="image/x-icon" />
+    <style id="trac-noscript" type="text/css">.trac-noscript { display: none !important }</style>
+      <link type="application/opensearchdescription+xml" rel="search" href="/ay301/search/opensearch" title="Search AY301" />
+      <script type="text/javascript" charset="utf-8" src="/ay301/chrome/common/js/jquery.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/ay301/chrome/common/js/babel.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/ay301/chrome/common/js/trac.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/ay301/chrome/common/js/search.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/ay301/chrome/common/js/folding.js"></script>
+    <script type="text/javascript">
+      jQuery("#trac-noscript").remove();
+      jQuery(document).ready(function($) {
+        $(".trac-autofocus").focus();
+        $(".trac-target-new").attr("target", "_blank");
+        setTimeout(function() { $(".trac-scroll").scrollToTop() }, 1);
+        $(".trac-disable-on-submit").disableOnSubmit();
+      });
+    </script>
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#content").find("h1,h2,h3,h4,h5,h6").addAnchor(_("Link to this section"));
+        $("#content").find(".wikianchor").each(function() {
+          $(this).addAnchor(babel.format(_("Link to #%(id)s"), {id: $(this).attr('id')}));
+        });
+        $(".foldable").enableFolding(true, true);
+      });
+    </script>
+    <link rel="stylesheet" href="/ay301/chrome/site/style.css" />
+  </head>
+  <body>
+    <div id="siteheader">
+    </div>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="/ay301/wiki/TracIni#header_logo-section"><img src="/ay301/chrome/site/icover.png" alt="ASTR 301 2016" /></a>
+      </div>
+      <form id="search" action="/ay301/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/ay301/login">Login</a></li><li><a href="/ay301/prefs">Preferences</a></li><li><a href="/ay301/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/ay301/about">About Trac</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first active"><a href="/ay301/wiki">Wiki</a></li><li><a href="/ay301/timeline">Timeline</a></li><li><a href="/ay301/roadmap">Roadmap</a></li><li><a href="/ay301/report">View Tickets</a></li><li class="last"><a href="/ay301/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="pagepath" class="noprint">
+  <a class="pathentry first" title="View WikiStart" href="/ay301/wiki">wiki:</a><a class="pathentry" href="/ay301/wiki/CM_CMD_Blog" title="View CM_CMD_Blog">CM_CMD_Blog</a>
+</div>
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+        <ul>
+          <li class="first"><a href="/ay301/wiki/WikiStart">Start Page</a></li><li><a href="/ay301/wiki/TitleIndex">Index</a></li><li class="last"><a href="/ay301/wiki/CM_CMD_Blog?action=history">History</a></li>
+        </ul>
+        <hr />
+      </div>
+    <div id="content" class="wiki">
+      <div class="wikipage searchable">
+        
+          <div id="wikipage" class="trac-content"><h3 id="a160329">160329</h3>
+<p>
+Isochrone generator:
+</p>
+<ul><li><a class="ext-link" href="http://worldwidescience.org/topicpages/h/h-r+diagram+isochrones.html"><span class="icon">​</span>http://worldwidescience.org/topicpages/h/h-r+diagram+isochrones.html</a>
+</li><li>paper: <a class="ext-link" href="http://arxiv.org/pdf/0706.0847v1.pdf"><span class="icon">​</span>http://arxiv.org/pdf/0706.0847v1.pdf</a>
+<ul><li><a class="ext-link" href="http://stellar.dartmouth.edu/~models/"><span class="icon">​</span>http://stellar.dartmouth.edu/~models/</a>
+</li></ul></li><li>program written in f: <a class="ext-link" href="http://stellar.dartmouth.edu/~models/programs/iso_interp_feh.f"><span class="icon">​</span>http://stellar.dartmouth.edu/~models/programs/iso_interp_feh.f</a>
+</li><li>paper: <a class="ext-link" href="http://iopscience.iop.org/article/10.1086/301089/fulltext/"><span class="icon">​</span>http://iopscience.iop.org/article/10.1086/301089/fulltext/</a>
+</li></ul><ul><li>fitting
+<ul><li>least square circle fitting: <a class="ext-link" href="http://scipy.github.io/old-wiki/pages/Cookbook/Least_Squares_Circle.html"><span class="icon">​</span>http://scipy.github.io/old-wiki/pages/Cookbook/Least_Squares_Circle.html</a>
+</li><li>best fit power law: <a class="ext-link" href="http://scipy.github.io/old-wiki/pages/Cookbook/FittingData.html"><span class="icon">​</span>http://scipy.github.io/old-wiki/pages/Cookbook/FittingData.html</a>
+</li></ul></li></ul><h3 id="a160404">160404</h3>
+<ul><li>might help with plotting
+<ul><li><a class="ext-link" href="http://www.astropy.org/astropy-tutorials/edshift_plot.html"><span class="icon">​</span>http://www.astropy.org/astropy-tutorials/edshift_plot.html</a>
+</li></ul></li></ul><h3 id="a160405">160405</h3>
+<ul><li>determine distance to globular cluster
+<pre class="wiki"># try to map a point on isochrone to data, to see best fit in parameter space
+# Corey Mutnik 4/5/16
+
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.transforms import Bbox
+from matplotlib.path import Path
+
+def determine_distance():
+	#dist = 7695.695 #known distance
+	dist1 = 5000.
+	dist2 = 250.
+	dist3 = 10.
+	abs_mag1 = app_mag - (5.*np.log10(dist1/10.))
+	abs_mag2 = app_mag - (5.*np.log10(dist2/10.))
+	abs_mag3 = app_mag - (5.*np.log10(dist3/10.))
+	plt.figure(1)
+	plt.clf()
+	plt.gca().invert_yaxis()
+	#plt.plot(color,app_mag, 'g.')
+	plt.plot(color,abs_mag1, 'g.', label='d=5000pc')
+	plt.plot(color,abs_mag2, 'b.', label='d=250pc')
+	plt.plot(color,abs_mag3, 'y.', label='d=10pc')
+	plt.plot(iso_VI,iso_mag_DS1, 'r.', label='isochrone')
+	plt.xlabel('V-I')
+	plt.ylabel('M')
+	plt.title('M13: Determine Distance')
+	plt.legend()
+	plt.savefig('determine_glob_dist.png')
+
+	plt.figure(2)
+	plt.clf()
+	plt.gca().invert_yaxis()
+	distance = [1,10,100,10000]
+	#colored = ['g.', 'b.', 'y.', 'p.']
+	colored = ['g', 'b', 'y', 'purple']
+	for i in range(len(distance)):
+		absol_mag = app_mag - (5.*np.log10(distance[i]/10.))
+		#plt.plot(color,app_mag, 'g.')
+		plt.plot(color,absol_mag, '.', color=colored[i], label=distance[i])
+	plt.plot(iso_VI,iso_mag_DS1, 'r.', label='isochrone')
+	plt.xlabel('V-I')
+	plt.ylabel('M')
+	plt.title('M13: Determine Distance')
+	plt.legend()
+	plt.savefig('determine_glob_dist_2.png')
+
+# load data from galaxy with app mag in V (Vega)
+dfiles = np.genfromtxt('M13.txt')
+app_mag = dfiles[:,3]
+app_mag_err = dfiles[:,4]
+color = dfiles[:,5]
+color_err = dfiles[:,6]
+
+# shift distance
+dist = 7695.695 #known distance
+abs_mag = app_mag - (5.*np.log10(dist/10.))
+#plot_gal_iso()
+
+# load data from isochrone
+isodat = np.genfromtxt('iso1.txt')
+#&gt;&gt; EEP   M/Mo    LogTeff  LogG   LogL/Lo U       B       V       R       I       J       H       Ks      Kp      D51
+iso_VI = isodat[:,7] - isodat[:,9]
+iso_mag_DS1 = isodat[:,-1]
+
+# Call function to generate plots
+determine_distance()
+</pre></li></ul><p>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/determine_glob_dist.png"><img width="30%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/determine_glob_dist.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/determine_glob_dist_2.png"><img width="30%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/determine_glob_dist_2.png" /></a>
+</p>
+<ul><li>define box and see how many points lie within it:
+<pre class="wiki">import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.transforms import Bbox
+import matplotlib.path as mpath
+
+# load data from galaxy with app mag in V (Vega)
+dfiles = np.genfromtxt('M13.txt')
+app_mag = dfiles[:,3]
+app_mag_err = dfiles[:,4]
+gal_VI = dfiles[:,5]
+gal_VI_err = dfiles[:,6]
+
+# load data from isochrone
+isodat = np.genfromtxt('iso1.txt')
+iso_VI = isodat[:,7] - isodat[:,9]
+iso_mag_DS1 = isodat[:,-1]
+
+# used to determine distance
+dist = 7695.695 #known distance
+abs_mag = app_mag - (5.*np.log10(dist/10.))
+
+# turn points into coulmns
+gal_points = np.column_stack([gal_VI, abs_mag])
+
+# plot last point of iso (lowest mag)
+dy_box = 2.5/2.
+dx_box = 0.75/2.
+
+# choose point for box to go around
+box_center = gal_points[0]
+
+# Box corners
+LTC = [box_center[0]-dx_box , box_center[1]-dy_box ]
+RTC = [box_center[0]+dx_box , box_center[1]-dy_box ]
+LBC = [box_center[0]-dx_box , box_center[1]+dy_box ]
+RBC = [box_center[0]+dx_box , box_center[1]+dy_box ]
+
+# extra comma after RTC[0] is needed or all points wont get enclosed
+verts = np.array([[LTC[0], LBC[0], RBC[0], RTC[0], ], [LTC[1], LBC[1], RBC[1], RTC[1]]]).T
+
+# draw path around verts to enclose points
+path = mpath.Path(verts)
+points_inside = gal_points[path.contains_points(gal_points)]
+N_stars_inside_box = len(points_inside)
+print 'Number of stars in box: ' , N_stars_inside_box
+
+# Plot data, box, and identify points in box
+plt.figure()
+plt.gca().invert_yaxis()
+#plt.plot(gal_VI, abs_mag, 'g.', label='M13')
+plt.scatter(gal_VI, abs_mag, label='M13')
+plt.plot(iso_VI,iso_mag_DS1, 'r.', label='m_iso')
+plt.plot([LTC[0], LBC[0], RBC[0], RTC[0], ], [LTC[1], LBC[1], RBC[1], RTC[1]], color='g', linewidth=1, linestyle='--', label='box')
+plt.scatter(points_inside[:,0], points_inside[:,1], c='yellow', s=5)
+plt.xlabel('V-I')
+plt.ylabel('M')
+plt.legend()
+plt.savefig('stars_in_a_box.pdf')
+</pre></li></ul><p>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/stars_in_a_box.png"><img width="30%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/stars_in_a_box.png" /></a><br />
+</p>
+<ul><li>if you wanna try the radius around a curve:
+</li></ul><p>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/lines_under_curve.png"><img width="20%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/lines_under_curve.png" /></a>
+</p>
+<hr />
+<h3 id="a160408">160408</h3>
+<ul><li>Uploaded isochrone data from Marielle:
+<pre class="wiki"># directory with isochrone data used
+cd /ay301/cmd_project/CM_CMDproject/isochrone_data
+</pre></li></ul><hr />
+<h3 id="a160409">160409</h3>
+<p>
+Looking at the fits headers I was wondering what filters were used:
+</p>
+<pre class="wiki">cd /ay301/cmd_project/N5272/1
+fitshdr ogg2m001-fs02-20160310-0142-e00.fits
+</pre><p>
+Why are they listed as 'air',air,'B'?<br />
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/cmdfilt1.png"><img width="40%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/cmdfilt1.png" /></a>
+</p>
+<hr />
+<h3 id="a160504">160504</h3>
+<p>
+MD needed to remove rows that were duplicated in 'M3_lcogt_VI.txt'...JK used cm to make this file, so duplicated use the delimiter flag 'D' rather than '|'...to remove the duplicate lines use awk:
+</p>
+<pre class="wiki"># see what the columns are
+head M3_lcogt_VI.txt
+
+# use awk to remove any row that has a D in col 6 and wite the output to a new file
+cat M3_lcogt_VI.txt | awk '$6!="D"{print $0}' &gt; M3_lcogt_VI_no_dubs.txt
+
+# verify column 6 no longer has any 'D'
+awk '{print $6}' M3_lcogt_VI_no_dubs.txt
+</pre><ul><li>file was to large, emailed to MD
+</li></ul><p>
+Here is an interesting paper I found..."Three Parameters for the Horizontal-Branch
+Morphology in Globular Clusters.":<br />
+</p>
+<ul><li><a class="ext-link" href="https://arxiv.org/pdf/1301.4617v1.pdf"><span class="icon">​</span>https://arxiv.org/pdf/1301.4617v1.pdf</a>
+</li></ul><p>
+I think it is possible to derive structure from the bimodality shown in this quick histogram I threw together...here is a quick example of what we discussed, hope it helps:
+</p>
+<pre class="wiki">#!/usr/bin/python
+# Py script to make a histogrm of stars in globular cluster, for removal of outliers
+# Corey Mutnik 5/4/16
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib import cm
+import scipy.optimize as optimized
+import sys
+
+# count number of system inputs
+total = len(sys.argv)
+
+# input value on command line, with default value incase you forget
+if total &lt; 2:
+	sigma = 3
+else:
+	# take input as sigma value: python [filename.py] [sigma]
+	sigma=float(sys.argv[1])
+
+# import data
+dfile = np.genfromtxt('M3_lcogt_VI_no_dubs.txt')
+
+# not sure if these columns are correct
+magv = dfile[:,2]
+err_v = dfile[:,3]
+magi = dfile[:,8]
+err_i = dfile[:,9]
+
+# color is V-I
+color = magv - magi
+# error summed in quadrature
+err_color = (err_v**2 + err_i**2)**0.5
+
+# make histogram
+s = np.array(magv)
+xmin = 10
+xmax = 25
+step = 0.1
+y, x = np.histogram(s, bins=np.linspace(xmin, xmax, (xmax-xmin)/step))
+nbins = y.size
+
+def plot_histogram():
+	plt.clf()
+	plt.bar(x[:-1], y, width=x[1]-x[0], color='red', alpha=0.5)
+	#plt.grid(True)
+	plt.xlabel('mag_v')
+	plt.ylabel('N')
+	plt.savefig('histo_of_vmag.png')
+# call function
+plot_histogram()
+
+def plot_VI_histo():
+	global y_c, histx_c
+	s_c = np.array(color)
+	xmin_c = -5
+	xmax_c = 5
+	# steps chosen to have roughly same number of divisions as mag histograms
+	step_c = 0.066
+	y_c, x_c = np.histogram(s_c, bins=np.linspace(xmin_c, xmax_c, (xmax_c-xmin_c)/step_c))
+	nbins_c = y.size
+	plt.clf()
+	plt.bar(x_c[:-1], y_c, width=x_c[1]-x_c[0], color='gray', alpha=0.5)
+	#plt.grid(True)
+	plt.xlabel('color')
+	plt.ylabel('N')
+	plt.savefig('histo_of_color.png')
+
+	# make global variable for use later
+	histx_c = x_c[:-1]
+plot_VI_histo()
+
+# makes x same dimensions as y
+histx = x[:-1]
+
+# Gaussian fit
+def gaussian(x, a, b, c, d):
+    '''
+    a = (height of the peak - continuum), b = peak center, c = width of peak, d = continuum
+    '''
+    y = a * np.exp((-(x-b)**2)/(2*c**2)) + d
+    return y
+
+# fit gaussian to right peak
+height_r = 1200
+center_r = 20
+width_r = 2
+continuum_r = 0
+
+# carry out fit
+param_r, covar_r = optimized.curve_fit(gaussian, histx, y, p0=[height_r, center_r, width_r, continuum_r])
+print param_r
+
+# use parameters to generate fit
+rightpeak = gaussian(histx, param_r[0], param_r[1], param_r[2], param_r[3])
+
+def plot_hist_with_gauss():
+	# plot histogram with fit
+	plt.clf()
+	plt.bar(x[:-1], y, width=x[1]-x[0], color='yellow', alpha=0.25)
+	#plt.plot(histx, leftpeak, color='k', lw=2)
+	plt.plot(histx, rightpeak, '.k', lw=2)
+	plt.xlabel('mag_v')
+	plt.ylabel('N')
+	plt.savefig('mag_histo_with_fit.png')
+plot_hist_with_gauss()
+
+sig = param_r[2]
+
+# determine mask params
+mask1 = (histx &lt; param_r[1]+sigma*sig) &amp; (histx &gt; param_r[1]-sigma*sig)
+# use calculated center (above) not initially guessed value (line below)
+#mask1 = (histx &lt; center_r+0.5*sig) &amp; (histx &gt; center_r-0.5*sig)
+
+# check by plotting
+#plt.clf()
+#plt.plot(histx[mask1], y[mask1], 'b.')
+
+mask_sigv = (magv &gt; min(histx[mask1])) &amp; (magv &lt; max(histx[mask1]))
+
+# mask color and mag_v using params from gaussian fit to histogram
+mask1_magv = magv[mask_sigv]
+mask1_color = color[mask_sigv]
+mask1_cerr = err_color[mask_sigv]
+mask1_verr = err_v[mask_sigv]
+
+#plt.clf()
+#plt.errorbar(mask1_color, mask1_magv, xerr=mask1_cerr, yerr=mask1_verr, fmt='.')
+#plt.ylim(22,16)
+
+
+#------------------------------------------------------------------------------------------------
+# fit gaussian to peak of color histogram
+height_c = 4000
+center_c = 0.5
+width_c = 0.5
+continuum_c = 0
+
+paramc, covarc = optimized.curve_fit(gaussian, histx_c, y_c, p0=[height_c, center_c, width_c, continuum_c])
+sigc = paramc[2]
+
+maskc = (histx_c &lt; paramc[1]+sigma*sigc) &amp; (histx_c &gt; paramc[1]-sigma*sigc)
+mask_sigc = (color &gt; min(histx_c[maskc])) &amp; (color &lt; max(histx_c[maskc]))
+
+# apply mask from fitting gaussian to color histo
+mask2_magv,mask2_color,mask2_cerr,mask2_verr = magv[mask_sigc],color[mask_sigc],err_color[mask_sigc],err_v[mask_sigc]
+
+fmask_magv = np.append(mask1_magv, mask2_magv)
+fmask_color = np.append(mask1_color, mask2_color)
+fmask_cerr = np.append(mask1_cerr, mask2_cerr)
+fmask_verr = np.append(mask1_verr, mask2_verr)
+
+# plot to see how this restricted the cluster
+plt.clf()
+plt.errorbar(color, magv, xerr=err_color, yerr=err_v, fmt='.',alpha=0.2, color='red',label='original data')
+plt.errorbar(fmask_color, fmask_magv, xerr=fmask_cerr, yerr=fmask_verr, fmt='.', alpha=0.2,color='blue',label='restricted data')
+plt.ylim(22,13)
+plt.xlabel('V-I')
+plt.ylabel('mag_v')
+plt.title('3$\sigma$ deviations of histogram gaussians')
+plt.legend()
+plt.savefig('field_overlay_'+str(sigma)+'sig.png')
+</pre><ul><li>sorry this is so rough but it gets the point across, hope it helps
+</li><li>clear bimodality
+</li><li>not clear how easily structure is derived from it
+</li></ul><p>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/histo_of_vmag.png"><img width="30%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/histo_of_vmag.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/histo_of_imag.png"><img width="30%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/histo_of_imag.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/histo_of_color.png"><img width="30%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/histo_of_color.png" /></a><br />
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/restricted_field.png"><img width="40%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/restricted_field.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/field_overlay.png"><img width="40%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/field_overlay.png" /></a><br />
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/field_overlay_0.5sig.png"><img width="10%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/field_overlay_0.5sig.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/field_overlay_1.0sig.png"><img width="10%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/field_overlay_1.0sig.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/field_overlay_1.5sig.png"><img width="10%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/field_overlay_1.5sig.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/field_overlay_2.0sig.png"><img width="10%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/field_overlay_2.0sig.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/field_overlay_2.5sig.png"><img width="10%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/field_overlay_2.5sig.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/field_overlay_3.0sig.png"><img width="10%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/field_overlay_3.0sig.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/field_overlay_3.5sig.png"><img width="10%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/field_overlay_3.5sig.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/field_overlay_4.0sig.png"><img width="10%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/field_overlay_4.0sig.png" /></a>
+</p>
+<hr />
+<h3 id="a160505">160505</h3>
+<ul><li>useful link: <a class="ext-link" href="http://www.aanda.org/articles/aa/full/2004/07/aa3984/aa3984.fig.html"><span class="icon">​</span>http://www.aanda.org/articles/aa/full/2004/07/aa3984/aa3984.fig.html</a>
+</li></ul><p>
+using same procedure outline in previous days entry I restricted the data 
+by fitting histograms to the error in color and mag_v, fit gaussians, and used 
+sigma to mask the arrays:<br />
+</p>
+<ul><li>here are the histograms with gaussian fits:
+</li></ul><p>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/err_color_hist_fit.png"><img width="20%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/err_color_hist_fit.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/err_magv_hist_fit.png"><img width="20%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/err_magv_hist_fit.png" /></a><br />
+</p>
+<ul><li>masked data (red) overlayed on unmasked data (blue), w/o xlim ylim restrictions:
+</li></ul><p>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/full_1_err_dev.png"><img width="10%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/full_1_err_dev.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/full_0.75_err_dev.png"><img width="10%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/full_0.75_err_dev.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/full_0.5_err_dev.png"><img width="10%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/full_0.5_err_dev.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/full_0.25_err_dev.png"><img width="10%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/full_0.25_err_dev.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/full_0.1_err_dev.png"><img width="10%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/full_0.1_err_dev.png" /></a><br />
+</p>
+<ul><li>masked data (red) overlayed on unmasked data (blue), w/ xlim ylim restrictions:
+</li></ul><p>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/rest_1_err_dev.png"><img width="10%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/rest_1_err_dev.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/rest_0.75_err_dev.png"><img width="10%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/rest_0.75_err_dev.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/rest_0.5_err_dev.png"><img width="10%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/rest_0.5_err_dev.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/rest_0.25_err_dev.png"><img width="10%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/rest_0.25_err_dev.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/rest_0.1_err_dev.png"><img width="10%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/rest_0.1_err_dev.png" /></a><br />
+</p>
+<ul><li>only masked data (red) w/ xlim ylim restrictions:
+</li></ul><p>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/onlymasked_1_err_dev.png"><img width="10%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/onlymasked_1_err_dev.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/onlymasked_0.75_err_dev.png"><img width="10%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/onlymasked_0.75_err_dev.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/onlymasked_0.5_err_dev.png"><img width="10%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/onlymasked_0.5_err_dev.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/onlymasked_0.25_err_dev.png"><img width="10%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/onlymasked_0.25_err_dev.png" /></a>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/onlymasked_0.1_err_dev.png"><img width="10%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/onlymasked_0.1_err_dev.png" /></a><br />
+</p>
+<ul><li>zoomed in on turning point:
+</li></ul><p>
+<a style="padding:0; border:none" href="/ay301/attachment/wiki/CM_CMD_Blog/turningpt_0.25sig.png"><img width="10%" src="/ay301/raw-attachment/wiki/CM_CMD_Blog/turningpt_0.25sig.png" /></a><br />
+</p>
+</div>
+          
+          <div class="trac-modifiedby">
+            <span><a href="/ay301/wiki/CM_CMD_Blog?action=diff&amp;version=37" title="Version 37 by cmutnik">Last modified</a> <a class="timeline" href="/ay301/timeline?from=2016-05-05T20%3A29%3A05-10%3A00&amp;precision=second" title="See timeline at May 5, 2016, 8:29:05 PM">4 years ago</a></span>
+            <span class="trac-print">Last modified on May 5, 2016, 8:29:05 PM</span>
+          </div>
+        
+        
+      </div>
+      
+    <div id="attachments">
+        <h3 class="foldable">Attachments <span class="trac-count">(38)</span></h3>
+        <div>
+          <ul>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/determine_glob_dist.png" title="View attachment">determine_glob_dist.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/determine_glob_dist.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="123696 bytes">120.8 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-04-05T15%3A42%3A08-10%3A00&amp;precision=second" title="See timeline at Apr 5, 2016, 3:42:08 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/determine_glob_dist_2.png" title="View attachment">determine_glob_dist_2.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/determine_glob_dist_2.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="134279 bytes">131.1 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-04-05T15%3A56%3A34-10%3A00&amp;precision=second" title="See timeline at Apr 5, 2016, 3:56:34 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/stars_in_a_box.pdf" title="View attachment">stars_in_a_box.pdf</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/stars_in_a_box.pdf" class="trac-rawlink" title="Download">​</a>
+       (<span title="1853516 bytes">1.8 MB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-04-05T20%3A31%3A35-10%3A00&amp;precision=second" title="See timeline at Apr 5, 2016, 8:31:35 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/stars_in_a_box.2.png" title="View attachment">stars_in_a_box.2.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/stars_in_a_box.2.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="111800 bytes">109.2 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-04-05T20%3A33%3A43-10%3A00&amp;precision=second" title="See timeline at Apr 5, 2016, 8:33:43 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/stars_in_a_box.png" title="View attachment">stars_in_a_box.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/stars_in_a_box.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="111800 bytes">109.2 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-04-05T20%3A33%3A53-10%3A00&amp;precision=second" title="See timeline at Apr 5, 2016, 8:33:53 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/lines_under_curve.png" title="View attachment">lines_under_curve.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/lines_under_curve.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="1190402 bytes">1.1 MB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-04-05T20%3A39%3A40-10%3A00&amp;precision=second" title="See timeline at Apr 5, 2016, 8:39:40 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/cmdfilt1.png" title="View attachment">cmdfilt1.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/cmdfilt1.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="99777 bytes">97.4 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-04-09T19%3A49%3A51-10%3A00&amp;precision=second" title="See timeline at Apr 9, 2016, 7:49:51 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/histo_of_imag.png" title="View attachment">histo_of_imag.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/histo_of_imag.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="19170 bytes">18.7 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-04T20%3A50%3A21-10%3A00&amp;precision=second" title="See timeline at May 4, 2016, 8:50:21 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/histo_of_vmag.png" title="View attachment">histo_of_vmag.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/histo_of_vmag.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="19312 bytes">18.9 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-04T20%3A50%3A27-10%3A00&amp;precision=second" title="See timeline at May 4, 2016, 8:50:27 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/histo_of_color.png" title="View attachment">histo_of_color.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/histo_of_color.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="21586 bytes">21.1 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-04T22%3A07%3A58-10%3A00&amp;precision=second" title="See timeline at May 4, 2016, 10:07:58 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/field_overlay.png" title="View attachment">field_overlay.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/field_overlay.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="183869 bytes">179.6 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-04T22%3A31%3A20-10%3A00&amp;precision=second" title="See timeline at May 4, 2016, 10:31:20 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/restricted_field.png" title="View attachment">restricted_field.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/restricted_field.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="69557 bytes">67.9 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-04T22%3A31%3A26-10%3A00&amp;precision=second" title="See timeline at May 4, 2016, 10:31:26 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/field_overlay_4.0sig.png" title="View attachment">field_overlay_4.0sig.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/field_overlay_4.0sig.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="177629 bytes">173.5 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-04T23%3A12%3A05-10%3A00&amp;precision=second" title="See timeline at May 4, 2016, 11:12:05 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/field_overlay_3.5sig.png" title="View attachment">field_overlay_3.5sig.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/field_overlay_3.5sig.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="178076 bytes">173.9 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-04T23%3A12%3A11-10%3A00&amp;precision=second" title="See timeline at May 4, 2016, 11:12:11 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/field_overlay_3.0sig.png" title="View attachment">field_overlay_3.0sig.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/field_overlay_3.0sig.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="177288 bytes">173.1 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-04T23%3A12%3A17-10%3A00&amp;precision=second" title="See timeline at May 4, 2016, 11:12:17 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/field_overlay_2.0sig.png" title="View attachment">field_overlay_2.0sig.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/field_overlay_2.0sig.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="175489 bytes">171.4 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-04T23%3A12%3A30-10%3A00&amp;precision=second" title="See timeline at May 4, 2016, 11:12:30 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/field_overlay_1.5sig.png" title="View attachment">field_overlay_1.5sig.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/field_overlay_1.5sig.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="173138 bytes">169.1 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-04T23%3A12%3A42-10%3A00&amp;precision=second" title="See timeline at May 4, 2016, 11:12:42 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/field_overlay_1.0sig.png" title="View attachment">field_overlay_1.0sig.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/field_overlay_1.0sig.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="166590 bytes">162.7 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-04T23%3A12%3A49-10%3A00&amp;precision=second" title="See timeline at May 4, 2016, 11:12:49 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/field_overlay_2.5sig.png" title="View attachment">field_overlay_2.5sig.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/field_overlay_2.5sig.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="176575 bytes">172.4 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-04T23%3A12%3A58-10%3A00&amp;precision=second" title="See timeline at May 4, 2016, 11:12:58 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/field_overlay_0.5sig.png" title="View attachment">field_overlay_0.5sig.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/field_overlay_0.5sig.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="157798 bytes">154.1 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-04T23%3A13%3A13-10%3A00&amp;precision=second" title="See timeline at May 4, 2016, 11:13:13 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/err_color_hist_fit.png" title="View attachment">err_color_hist_fit.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/err_color_hist_fit.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="30141 bytes">29.4 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-05T19%3A01%3A26-10%3A00&amp;precision=second" title="See timeline at May 5, 2016, 7:01:26 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/err_magv_hist_fit.png" title="View attachment">err_magv_hist_fit.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/err_magv_hist_fit.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="26257 bytes">25.6 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-05T19%3A01%3A33-10%3A00&amp;precision=second" title="See timeline at May 5, 2016, 7:01:33 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/full_0.1_err_dev.png" title="View attachment">full_0.1_err_dev.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/full_0.1_err_dev.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="151599 bytes">148.0 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-05T19%3A01%3A39-10%3A00&amp;precision=second" title="See timeline at May 5, 2016, 7:01:39 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/full_0.5_err_dev.png" title="View attachment">full_0.5_err_dev.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/full_0.5_err_dev.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="162668 bytes">158.9 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-05T19%3A01%3A46-10%3A00&amp;precision=second" title="See timeline at May 5, 2016, 7:01:46 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/full_0.25_err_dev.png" title="View attachment">full_0.25_err_dev.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/full_0.25_err_dev.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="157066 bytes">153.4 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-05T19%3A01%3A52-10%3A00&amp;precision=second" title="See timeline at May 5, 2016, 7:01:52 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/full_0.75_err_dev.png" title="View attachment">full_0.75_err_dev.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/full_0.75_err_dev.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="166202 bytes">162.3 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-05T19%3A01%3A58-10%3A00&amp;precision=second" title="See timeline at May 5, 2016, 7:01:58 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/full_1_err_dev.png" title="View attachment">full_1_err_dev.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/full_1_err_dev.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="168015 bytes">164.1 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-05T19%3A02%3A03-10%3A00&amp;precision=second" title="See timeline at May 5, 2016, 7:02:03 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/onlymasked_0.1_err_dev.png" title="View attachment">onlymasked_0.1_err_dev.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/onlymasked_0.1_err_dev.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="144356 bytes">141.0 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-05T19%3A02%3A08-10%3A00&amp;precision=second" title="See timeline at May 5, 2016, 7:02:08 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/onlymasked_0.5_err_dev.png" title="View attachment">onlymasked_0.5_err_dev.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/onlymasked_0.5_err_dev.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="179175 bytes">175.0 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-05T19%3A02%3A14-10%3A00&amp;precision=second" title="See timeline at May 5, 2016, 7:02:14 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/onlymasked_0.25_err_dev.png" title="View attachment">onlymasked_0.25_err_dev.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/onlymasked_0.25_err_dev.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="159073 bytes">155.3 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-05T19%3A02%3A19-10%3A00&amp;precision=second" title="See timeline at May 5, 2016, 7:02:19 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/onlymasked_0.75_err_dev.png" title="View attachment">onlymasked_0.75_err_dev.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/onlymasked_0.75_err_dev.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="185274 bytes">180.9 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-05T19%3A02%3A28-10%3A00&amp;precision=second" title="See timeline at May 5, 2016, 7:02:28 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/onlymasked_1_err_dev.png" title="View attachment">onlymasked_1_err_dev.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/onlymasked_1_err_dev.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="187475 bytes">183.1 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-05T19%3A02%3A38-10%3A00&amp;precision=second" title="See timeline at May 5, 2016, 7:02:38 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/rest_0.1_err_dev.png" title="View attachment">rest_0.1_err_dev.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/rest_0.1_err_dev.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="318167 bytes">310.7 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-05T19%3A02%3A44-10%3A00&amp;precision=second" title="See timeline at May 5, 2016, 7:02:44 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/rest_0.5_err_dev.png" title="View attachment">rest_0.5_err_dev.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/rest_0.5_err_dev.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="351757 bytes">343.5 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-05T19%3A02%3A49-10%3A00&amp;precision=second" title="See timeline at May 5, 2016, 7:02:49 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/rest_0.25_err_dev.png" title="View attachment">rest_0.25_err_dev.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/rest_0.25_err_dev.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="333891 bytes">326.1 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-05T19%3A02%3A56-10%3A00&amp;precision=second" title="See timeline at May 5, 2016, 7:02:56 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/rest_0.75_err_dev.png" title="View attachment">rest_0.75_err_dev.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/rest_0.75_err_dev.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="350984 bytes">342.8 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-05T19%3A03%3A03-10%3A00&amp;precision=second" title="See timeline at May 5, 2016, 7:03:03 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/rest_1_err_dev.png" title="View attachment">rest_1_err_dev.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/rest_1_err_dev.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="347716 bytes">339.6 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-05T19%3A03%3A13-10%3A00&amp;precision=second" title="See timeline at May 5, 2016, 7:03:13 PM">4 years ago</a>.
+              </li>
+              <li>
+    <a href="/ay301/attachment/wiki/CM_CMD_Blog/turningpt_0.25sig.png" title="View attachment">turningpt_0.25sig.png</a><a href="/ay301/raw-attachment/wiki/CM_CMD_Blog/turningpt_0.25sig.png" class="trac-rawlink" title="Download">​</a>
+       (<span title="308573 bytes">301.3 KB</span>) -
+      added by <em>cmutnik</em> <a class="timeline" href="/ay301/timeline?from=2016-05-05T20%3A27%3A59-10%3A00&amp;precision=second" title="See timeline at May 5, 2016, 8:27:59 PM">4 years ago</a>.
+              </li>
+          </ul>
+        </div>
+    </div>
+
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="/ay301/wiki/CM_CMD_Blog?format=txt">Plain Text</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/ay301/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">Powered by <a href="/ay301/about"><strong>Trac 1.0.9</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.</p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+    <div id="sitefooter">
+    </div>
+  </body>
+</html>

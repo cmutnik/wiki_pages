@@ -1,0 +1,3757 @@
+= Stationary Transients =
+
+Using data collected by ATLAS, and differenced by the established pipeline, 
+we will identify Supernova I.  The aim of this project is to identify such 
+objects faster than the ASASSN (ASN) group is able to.  We will also be able 
+to detect objects that are fainter by 0.5-1.0 magnitudes.
+
+
+
+----
+=== To Do ===
+
+ * ID Supernova by comparing objs in linkdet and vartest output files
+  - must be done with proper parameters
+  - see [wiki:StatTrans#ATLASlogs ATLAS logs] for more details
+ * Questions
+  - are things before 57238 not being linked? See [wiki:StatTrans#a160919 here]
+ * Replicate what JT did on the 22nd
+  - work started on [wiki:StatTrans#a160926 160926]
+
+
+----
+=== Links to Useful Pages ===
+ * [wiki:coreyscreen Page of Screens]
+ * [https://atlas.fallingstar.com/atlas/trac/wiki/useful Useful things wiki]
+ * [http://astr01.ifa.hawaii.edu/trac/wiki/CM_useful_commands ASTR301 Useful things]
+ * [http://www.astronomy.ohio-state.edu/~assassin/sn_list.html ASASSN Supernova Catalog]
+ * [https://blog.galaxyzoo.org/category/supernovae/ Galaxy Zoo: Machine Learning & SN Classification]
+
+
+----
+=== 160831 ===
+
+**Timeline**
+||  **Date**  ||  **Goal**  ||
+||  160902  ||    ||
+||  160916  ||  Use ATLAS data to isolate stationary transients  ||
+||  160930  ||  (Manually verify stationary transients are real)  ||
+||  161014  ||  Use Supernova previously identified by ASAS-SN to develop training set  ||
+||  161028  ||  Identify supernova (focusing on Type Ia)  ||
+||  161111  ||    ||
+||  161125  ||  Compare results with ASAS-SN  ||
+||  161210  ||  Have system in place; one that identifies Supernova at lease at effectively as ASAS-SN  ||
+||  161210  ||  Final Paper Due  ||
+ * If time - add page to falling star website
+
+
+----
+----
+== Questions ==
+
+ * Is monsta installed on ATLAS server
+ * Should I use this wiki, or get own for my 399
+ * Where is pre-sorted transient data dumped
+  - All stationary transients are said to be thrown away
+   * Thrown away to where?
+ * Link-det
+  - How does it work?
+  - What is in the output file?
+
+
+----
+=== 160906 ===
+
+ * Copy some test data
+{{{
+cd /atlas-diff/02a/57455
+rsync *268* /home/cmutnik/astr399/tmp/.
+}}}
+
+ * Can't seem to find installation of monsta or mongo
+{{{
+# Tried using
+which monsta
+whereis monsta
+command -v monsta
+}}}
+  - Doesn't seem to be installed
+  - Need to ask JT
+
+
+----
+=== 160907 ===
+
+linkdet outputs .lnk files with necessary data
+{{{
+# find where the data is stored
+#   difference files
+cd /atlas-diff/02a/
+
+# example of where link files are stored
+cd /atlas-diff/02a/57591/LINK
+
+# open a file to see what it contains
+head TA358N02.lnk
+}}}
+ * Here is an example of a link file
+{{{
+head 
+#     ID   Ndet chi  xrms  trms    MJD0          u0RA      u0Dec     v      vRA     vDec tsprd Real Move  MB  Star Vert Edge Comb
+Obj 00000   4  6.39  0.89  3.40 57591.54016  356.0835   -0.8237  0.0223 -0.0206 -0.0086  0.190 0.64 0.01 0.37 0.65 0.00 0.80 1.00
+# ID      Obs         det#     MJD          RA        Dec     tpx     tpy     m     dm   dcrs  dtrk    dt Nuse Preal Pstar
+00000 02a57591o0557o  2348 57591.540156 356.08339  -0.82356 10221.4 10427.5 17.38  0.15  0.67 -0.08      0 1 0.65 0.67
+00000 02a57591o0576o   284 57591.551267 356.08244  -0.82429   423.1 10405.2 17.50  0.19 -0.44 -3.35    960 1 0.53 0.66
+00000 02a57591o0582o  2642 57591.554549 356.08332  -0.82383 10238.0 10469.5 16.48  0.07 -0.13  0.47   1244 1 0.88 0.72
+00000 02a57591o0675o   285 57591.603381 356.08207  -0.82420   395.5 10426.5 17.58  0.20  0.37 -0.26   5463 1 0.51 0.55
+}}}
+ * line 1 - the initial header IDs the obj
+ * line 3 - header for observations
+ * rest - observations of target
+
+
+not really useful in this format...separate header lines and plot
+{{{
+# use grep to pull all header lines from link files
+grep Obj TA358N02.lnk > /tmp/foo
+
+# plot the data
+mongo
+term
+data /tmp/foo
+xc 10
+uc 5
+vc 6
+set u u * U
+set v v * v
+set y u + v
+set y y sqrt
+xlog
+ylog
+lim
+box
+poi
+# pipeline throws junk out to -50, which begs for limit restrictions
+lim -4 1 -1.5 1
+erase
+box
+poi
+}}}
+  - Left: plot without limit restrictions
+  - Right: after "lim -4 1 -1.5 1" is applied
+[[Image(test.plot.w.outlier.png,20%)]]
+[[Image(test.plot.wo.outlier.png,20%)]]
+  - lower left quadrant is where stationary transients reside - such as supernova
+  - lower left quadrant of restricted plot is much less populated than expected
+
+----
+=== 160908 ===
+
+To access things like monsta and linkdet, $PATH needed to be modified:
+{{{
+# See current path
+echo $PATH
+#>> /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games
+
+# open bashrc file and add export lines
+emacs ~/.bashrc
+
+export PATH=$PATH:/atlas/bin:/atlas/vendor/monsta/bin
+export ATLAS_HOME=/atlas
+}}}
+ * now things like monsta work
+
+Find and copy linkdet script, to understand how it works and if
+3 detections are sufficient
+ * linkdet.c
+{{{
+rsync /atlas/src/trunk/sci/linkroid/linkdet.c /home/cmutnik/astr399/.
+}}}
+
+{{{
+screen -r scan
+
+# change into a link dir
+cd /atlas-diff/02a/57591/LINK
+
+# pull all header lines from link files, for full night of obs
+grep Obj TA*.lnk > /tmp/foo
+}}}
+
+ * plot data again
+{{{
+mongo
+term
+data /tmp/foo
+xc 10
+uc 5
+vc 6
+set u u * U
+set v v * v
+set y u + v
+set y y sqrt
+xlog
+ylog
+lim -4 1 -1.5 1
+box
+poi
+}}}
+  - -50 outliers have been ignored
+[[Image(all.obs.02a.57591.png,20%)]]
+
+----
+=== 1609011 ===
+
+ * restrict plot from above
+{{{
+mongo
+term
+data /tmp/foo
+xc 10
+uc 5
+vc 6
+set u u * U
+set v v * v
+set y u + v
+set y y sqrt
+xlog
+ylog
+lim -4.1 1 -1.6 1
+box poi
+}}}
+  - what are the vertical lines caused by?
+[[Image(all.obs.02a.57591.160911.png,20%)]]
+
+
+ * copying all link files
+{{{
+screen -r scan
+rsync -avz /atlas-diff/02a/57*/LINK/* /home/cmutnik/astr399/link_files/.
+}}}
+
+ * make sure all nights have link files
+ * plot
+ * id and isolate trends
+ * use parameters to isolate supernova from other transients
+
+----
+=== 160912 ===
+
+Forgot to recursively rsync files, so now its a mash and the dir tree is gone...need to recopy them, using:
+{{{
+rsync -R /atlas-diff/02a/57*/LINK/ /home/cmutnik/astr399/linked
+}}}
+
+Also need to copy [https://atlas.fallingstar.com/atlas/trac/browser/ATLAS%20SVN%20Repository/sw/trunk/sci/linkroid/linkdet.c?rev=5346 linkdet] down to my comp so I can dissect it better
+{{{
+rsync -avz -e ssh cmutnik@atlas-base-adm01.ifa.hawaii.edu:/home/cmutnik/astr399/linkdet.c /Users/cmutnik/work/classes/ASTR399/lindet/
+}}}
+  - could have also just looked at code on [https://atlas.fallingstar.com/atlas/trac/browser/ATLAS%20SVN%20Repository/sw/trunk/sci/linkroid/linkdet.c?rev=5346 linkdet.c's wiki repository page]
+
+Need to add things to path, such as ffmpeg and vlc...to append something to $PATH, at the 
+end of my .bashrc file
+{{{
+# this path has things like 'mjd'
+echo 'set PATH=$PATH:/data/atlas.adm01/atlas/bin' >> ~/.bashrc
+}}}
+
+
+----
+=== 160914 ===
+
+ * Test if linkdet detections are real
+  - do this by looking up in PS catalogue
+ * Assemble real obj, real locations, real etc for detections
+ * Vartest
+  - vartest02 outputs *.vtst files
+  - compare linkdet and vartest
+   * compare things linkdet says move slowly
+   * write shell script to do this
+  - speak with Ari about vartest output
+ * One file to rule them all
+  - collect vartest info and put into .ddt file
+  - one location that has all needed info
+
+----
+Using [wiki:JTStatTrans JT's page] as a resource:\\
+Look at linkdet [wiki:JTBlog160930#a160909 here].\\
+
+During Meeting on 12th JT said I was getting ahead of myself by looking at linkdet
+
+
+----
+=== 160918 ===
+
+Find ASASSN's previous supernova classifications. A catalog published for their 2013-2014 
+classifications can be seen here:\\
+ * [http://adsabs.harvard.edu/abs/2016arXiv160400396H ASASSN Supernova Catalog I]
+ * [http://arxiv.org/pdf/1604.00396v1.pdf PDF]
+Need to pull this data from this catalog and compare to our observations to "identify the 
+nights and observations when they were present".   This would be much easier if downloading the table was possible...I think it is, if I were connected to the internet at UH.\\
+
+In paper linked above 'ASASSN Supernova Catalog I', Table 1 contains ASASSN Supernova 
+with corresponding information...This file will be downloaded and manipulated, to suit my needs. Here is a link to the unaltered file: [[Image(original.asassn.table1.txt,10%)]].  
+
+ * Modify file fomat
+   - Remove header
+   - Use "|" as delimiter
+  - New File: [[Image(tab1nohead.txt,10%)]]
+
+ * Restrict list to useful data:
+{{{
+# use awk to check head and tail have proper number of columns
+awk -F"|" '{print NF}' tab1nohead.txt | head -20
+awk -F"|" '{print NF}' tab1nohead.txt | tail -20
+
+# pull out useful columns
+awk -F"|" '{print $1, $4, $5, $6, $7, $8, $9, $10, $11}' tab1nohead.txt > tab1usefuldata.txt
+
+# pull out useful columns, but have the outfile delimited by ","
+awk -F"|" 'BEGIN{OFS=",";} {print $1, $4, $5, $6, $7, $8, $9, $10, $11;}' tab1nohead.txt > tab1usefuldata.csv
+
+# append the header to this file
+#SNName, RA, Dec, Redshift, DiscMag, PeakMag, Offset, Type, DiscAge
+}}}
+ * New file called "tab1usefuldata.csv": [[Image(tab1usefuldata.csv,10%)]]
+
+Convert given RA and Dec into usable degree values
+{{{
+from astropy import units as u
+from astropy.coordinates import SkyCoord
+from astropy.io import ascii
+
+# open table 1
+#df = ascii.read('original.asassn.table1.txt',data_start=33)
+
+# open table 1, after modification were made
+datfile = ascii.read('tab1usefuldata.csv')
+
+# print put column names
+datfile.colnames
+#>> ['SNName', 'RA', 'Dec', 'Redshift', 'DiscMag', 'PeakMag', 'Offset', 'Type', 'DiscAge']
+
+# convert HHMMSS to Degrees
+ssn_deg = coord.FK5(datfile['RA'], datfile['Dec'], unit=(u.deg, u.deg))
+
+'''
+# write out table
+ascii.write([datfile['SNName'], ssn_deg[0], ssn_deg[1]], 'table1_deg.dat', names=['SNName', 'ra_deg', 'dec_deg'])
+
+'''
+
+# for what I am working on now, all i need is a list of the coordinates (ra, dec)
+print ssn_deg
+}}}
+ * Just need to write the file out in a decent format
+ * copied the output and formatted a little to get file of ra/dec in units of degrees: [[Image(tab1_raDec_deg.dat,10%)]]
+
+ * Table 1 (ASASSN):
+Their table formatting is terrible, multiple lines for the same object, different styles in the same table...
+{{{
+# First 2 lines of table 1
+ASASSN-13an 2013da 2013-06-05.34 13h45m36.22 -07d19m32.5
+ASASSN-13an 2013da 2013-06-05.34 13:45:36.22 -07:19:32.5
+}}}
+  - Inconsistent practices make automation difficult
+
+----
+ **Reformat Table 1**
+ * First few columns, altered as to not use ":"
+  - Something with astropy conversion gets thrown off
+  - New file: [[Image(reformatted.txt,10%)]]
+ * Run through same python routine above to get RA/Dec list in deg:  [[Image(reformat_tab1_raDec_deg.dat,10%)]]
+  - this file is saved as {{{/home/cmutnik/astr399/reformat_tab1_raDec_deg.dat}}}
+
+----
+Pull object lines from all linked files and compile into one file:
+{{{
+screen -r scan
+cd /home/cmutnik/astr399/linked
+grep Obj *.lnk > ../all_linked_objs.cor
+}}}
+
+Verify that each row in the new file has the correct number of columns
+{{{
+awk '{print NF}' all_linked_objs.cor
+#>>20
+
+awk 'NF!=20{print NR, NF}' all_linked_objs.cor
+}}}
+
+----
+File structure and data from ASN is pissing me off...take break and mess with linkdet/vartest data
+----
+
+It has been postulated that identification of supernova should be achievable by merely comparing the outputs from linkdet and vartest (See [wiki:StatTrans#a160914 160914])
+
+ * Collect sample data
+{{{
+# make directory for linkdet and vartest data
+cd ~/astr399/data_ATLAS/57643
+
+# Copy that nights vartest data into specific folder
+rsync -avz /atlas-diff/02a/57643/*.vtst ./57643/vartest/
+
+# Copy corresponding linkdet data into specific folder
+rsync -avz LINK /home/cmutnik/astr399/data_ATLAS/57643
+}}}
+  - 57643 had vartest and linkdet files; otherwise it was an arbitrary choice
+  - 57643/* takes up ~500Mb
+
+ * vartest header:
+{{{
+# check out a header to one of the vartest outputs
+head ~/astr399/data_ATLAS/57643/vartest/02a57643o0020o.vtst
+#>>#INPUT_TPX	INPUT_TPY	DIFF_FLX	ORIG_FLX	STARRAT	VERTAVERAGE	VERTDIFF	DIFF_TPX	DIFF_TPY	DIFFDELT	ORIGDELPLACEHOLDER
+}}}
+  - need to contact Ari and figure out what it all means
+  - asked for a meet during T/F afternoon, waiting on email reply
+
+
+----
+Back to comparing data between obs and ASN...do so using colmerge
+
+ * Recall cm syntax
+{{{
+cm col1[,c2...] file1 col2[,c2...] file2 [options]
+}}}
+ * Don't forget its gotta go dec,ra NOT ra,dec
+
+ * compare ASN and obs
+{{{
+cm 2,1 reformat_tab1_raDec_deg.dat 9,8 all_linked_objs.cor
+
+# if above doesnt work, use tolerance
+
+RAD=1
+cm 2,1 reformat_tab1_raDec_deg.dat 9,8 all_linked_objs.cor -tol $RAD,d
+}}}
+
+ * make file of comparison 
+{{{
+# using tolerance, compare ASN and obs
+cm 2,1 reformat_tab1_raDec_deg.dat 9,8 all_linked_objs.cor -tol 0.001,d > initial.compare.cor
+}}}
+
+ * initial.compare.cor
+{{{
+338.62429167, -24.66455556 | TA341S22.lnk:Obj 00187   4  8.73  1.86  3.51 57577.51725  338.6252  -24.6640  0.0530 -0.0400 -0.0268  0.865 0.62 0.17 0.25 0.85 0.00 0.63 1.00
+26.15991667, 35.80566667   | TA028N37.lnk:Obj 00019   4 11.06  1.80  3.86 57598.55087   26.1596   35.8055  0.0277  0.0015  0.0224  0.391 0.62 0.01 0.03 0.71 0.00 0.36 1.00
+}}}
+  - only 2 objects line up?
+  - was tolerance to much?
+  - reread cm man page to see if used the flag "d" properly
+  - in meantime...check out these 2 objects
+
+
+----
+=== 160919 ===
+
+rsync files down from server to my local comp
+{{{
+rsync -avz -e ssh cmutnik@atlas-base-adm01.ifa.hawaii.edu:/data/home/cmutnik/astr399/matched/ /Users/cmutnik/work/classes/ASTR399/matched/
+}}}
+
+Make shell script that compares obs and ASN data using cm; then strips the file, leaving only useful columns
+{{{
+###
+# PERELIMINARY...THIS FILE IS NOT FINISHED
+###
+#!/bin/bash
+# Comparison of ASN supernova and linked observations
+
+dfile=reformat_tab1_raDec_deg.dat
+
+eval $@
+
+# compare the OBJ links from all the lnk files to ASNs supernova list
+cm 9,8 all_linked_objs.cor 2,1 $dfile -tol 0.001 > $dfile.list
+
+#cm 2,1 reformat_tab1_raDec_deg.dat 9,8 all_linked_objs.cor -tol 0.1,d > initial.compare.tol0.1.cor
+# READ MAN PAGE for cm, do see if that 'd' flag is needed
+
+# RA_LS	std_RA_LS	Dec_LS	std_Dec_LS	ro_RRLyrae_PS
+#awk '{print $14, $15, $16, $17, $11}' $dfile.list > $dfile.chyea
+
+exit 0
+}}}
+
+ * cm failure analysis
+{{{
+# previous cm might have failed since I was using things from old catalog
+datetjd 20130605
+#>> 6448
+
+# list all dir accessible for differencing 
+ls /atlas-diff/02a/
+# the oldest date is 57192
+
+# use oldest date to see how far back diff obs go
+tjdate 7192
+#>>20150619
+}}}
+ * **previous cm failed because we don't have data as far back as the ASN event**
+
+ * More current ASN supernova data can be found [http://www.astronomy.ohio-state.edu/~assassin/sn_list.html here]
+
+----
+==== ATLAS logs ====
+Search reduced observations for particular ASN supernova
+{{{
+# catalog all the log files for reduced data 
+cat /atlas/red/02a/5*/5*.log > /data/home/cmutnik/astr399/data_ATLAS/logs/red.57177.57651.log
+
+cd /data/home/cmutnik/astr399/data_ATLAS/logs/
+
+# some logs don't exist and throw off the column numbering
+head head red.57177.57651.log
+#>>57177.log does not exist
+
+# tail looks good, use this to determine correct number of columns
+tail red.57177.57651.log
+#>>02a57650o0813o 57650.65575 o    9917  30.0 -53.0  41901.0   2.16   2078   0.00   0.0000   0.0000 f17 TA118N02
+
+# check number of columns in each row using awk
+#   passing to head alternates between 14 and 4
+awk '{print NF}' red.57177.57651.log | tail -10
+#>> 14
+
+# make a list of the log files that DNE
+awk 'NF!=14{print $0}' red.57177.57651.log > missing.logs.57177.57651.txt
+# this carried over logs with data formatted differently
+
+
+# rm files and try again
+rm missing.logs.57177.57651.txt;
+rm only.good.header.red.57177.57651.log;
+awk 'NF==4{print $0}' red.57177.57651.log > missing.logs.57177.57651.txt
+
+# this doesnt account for everything, take a look at other lines
+awk 'NF!=14 && NF!=4 {print $0}' red.57177.57651.log > not14.notDNE.57177.57651.txt
+# some of these rows have 13 cols since 'Obj' isnt filled in as 'NA'
+
+
+# eliminate and rows dont have exatly 14 lines
+awk 'NF==14{print $0}' red.57177.57651.log > only.good.header.red.57177.57651.log
+
+# lots of header lines interspersed throughout file
+#>>  #Observation     MJD      Filt  Foc Etime TCCD    Sky     FWHM   Nstar   ZP     RA       Dec   QC  Object
+
+
+}}}
+ * 4 column numbers
+  - "NF==4" shows a log files the does not exist (DNE)
+  - "NF==13" are rows where the "Obj" column wasn't filled in; as "NA" or otherwise
+   * the col looks to be filled in for file between 57238 and present
+   * are things before 57238 not being linked?
+  - "NF==14" are rows with correct number of columns
+  - "NF==15" is header lines that have a space between the leading "#" and first column name
+  - "NF==12" dont have a filter so they throw off the column numbers and we cant use them
+   * 57201: 18 rows
+   * 57202: 1 row
+   * 57203: 2 rows
+
+Doing it the way above leaves out the lines that have 13 or 15 columns.   The header lines with 15 cols are due to the space separating the first column name and the "#" used to comment things out.  The lines with information that have nothing written in the final column, "Obj", come up as having only 13 lines. Check to see that the useful lines have RA Dec in the same column number; columns 11 and 12, respectively.
+{{{
+awk '{print $11, $12}' not14.notDNE.57177.57651.txt | head -5
+awk '{print $11, $12}' only.good.red.57177.57651.log | head -5
+}}}
+ * they match
+ * we can use the lines with 13 cols
+  - just not for the final col
+
+
+
+ * make one file containing all useful lines (rows with 13 or 14 columns)
+{{{
+rm only.good.red.57177.57651.log
+
+# eliminate rows without 13 or 14 lines
+awk 'NF==13 || NF==14{print $0}' red.57177.57651.log > only.good.red.57177.57651.log
+}}}
+ * it's brute, but I used find and replace to eliminate all header lines and left one at the top
+  - "only.good.red.57177.57651.log" is final file: [[Image(only.good.red.57177.57651.log,10%)]]
+ * list of dates where log files DNE ("missing.logs.57177.57651.txt") : [[Image(missing.logs.57177.57651.txt,10%)]]
+ * full list from cat "red.57177.57651.log": [[Image(red.57177.57651.log,10%)]]
+
+
+ * work done on laptop and pushed to server
+{{{
+rsync -avz -e ssh ./* cmutnik@atlas-base-adm01.ifa.hawaii.edu:/data/home/cmutnik/astr399/data_ATLAS/logs/
+}}}
+
+
+----
+==== ASN Data ====
+
+Downloaded the full list of ASN supernova from their [http://www.astronomy.ohio-state.edu/~assassin/sn_list.html website].  Previously I was working from an incomplete list, one predating our obs. The new ASN list should fix my previous issue.
+ * Full list of ASN supernova: [[Image(sn_list_full.txt,10%)]]
+  - downloaded on 160919
+  - had to add comment out the header line
+ * location on server
+{{{
+cd /home/cmutnik/astr399/matched/
+
+# relocate old asn data
+mkdir old;
+mv * old/
+
+# from laptop, rsync newly downloaded asn data
+rsync -avz -e ssh /Users/cmutnik/work/classes/ASTR399/data/asassn_data/sn_list_full.txt cmutnik@atlas-base-adm01.ifa.hawaii.edu:/data/home/cmutnik/astr399/matched/
+
+# full list of asassn supernova can be found at
+emacs /home/cmutnik/astr399/matched/sn_list_full.txt
+}}}
+
+----
+==== Compare ====
+
+To build a training set, ATLAS observation of ASN designated supernova need 
+to be identified.  Using colmerge will allow for the comparison of 
+the newly acquired ASN list and ATLAS obs based on RA,Dec,MJD.  This will locate 
+ATLAS obs for specific targets (hopefully w/o to large a tolerance).
+{{{
+# compare dec,ra for ATLAS logs and ASN data
+cm 5,4 sn_list_full.txt 12,11 only.good.red.57177.57651.log -tol 0.001 > red.asn.tol0.001.match
+}}}
+ * 0 matches
+  - need to raise the tolerance all the way up to 0.1 to get a match
+ * **why?**
+
+[[br]]
+
+comparison of linked ATLAS objects and ASN data
+{{{
+# compare the OBJ links from all the lnk files to ASNs supernova list
+cm 5,4 sn_list_full.txt 9,8 all_linked_objs.cor -tol 0.001 > lnk.asn.tol0.001.match
+}}}
+ * 23 objects are linked with tolerance of 0.001: [[Image(lnk.asn.tol0.001.match,10%)]]
+
+ ** When exactly were link files started...make sure none were missed, some arent in own 'LINK' directory **
+
+
+----
+=== 160920 ===
+ * Visually examine 
+  - a case that matched ASN with obs
+  - case that didnt show match when using cm
+ * meeting with Ari at 2pm this Friday
+ * meeting with JT at 2pm this Thursday
+ * started screen "links"
+  - trying to determine which link files are not in own "LINK" subdir
+ {{{
+# will link files in /atlas/diff/02a/5*
+ls 5*/*.lnk > ~/astr399/files.not.in.LINK.dir.cor
+}}}
+  - **verify** that the previously pulled link files were only from /atlas/diff/02a/5*/LINK/*
+
+ * try cm ASN data with *.diff.fz
+{{{
+# first find correct RA/Dec column numbers
+head /atlas-diff/02a/5*/*.diff.fz
+}}}
+
+
+----
+=== 160921 ===
+
+ * ASN and ddt
+{{{
+# open screen to run commands in
+screen -r ddt
+
+# change into dir with ASN list
+cd /home/cmutnik/astr399/matched
+
+# compare ASN list with all ATLAS ddt files
+cm 5,4 sn_list_full.txt 2,1 /atlas-diff/02a/5*/*.ddt -tol 0.001 > ddt.asn.tol0.001.match
+}}}
+ - failed with error: 
+ {{{
+#>> bash: /atlas/bin/cm: Argument list too long
+}}}
+
+
+
+----
+=== 160922 ===
+
+Check MJD of ASN list to see if matching is even possible...our obs do not go back as far as theirs.
+
+ * ASN and ddt
+{{{
+# open screen to run commands in
+screen -r ddt
+
+# change into dir with ASN list
+cd /home/cmutnik/astr399/matched
+
+# compare ASN list with all ATLAS ddt files with cm max increased
+cm 5,4 sn_list_full.txt 2,1 /atlas-diff/02a/5*/*.ddt -tol 0.001 -grp -max 5000000 > ddt.asn.tol0.001.grpmax.match
+}}}
+  - **read man page**
+   * is '-grp' flag needed?
+   * is 'd' needed
+
+ * testing
+{{{
+# fails
+cm 5,4 sn_list_full.txt 2,1 /atlas-diff/02a/5*/*.ddt -tol 0.001,d -grp -max 50000000 > ddt.asn.tol0.001.alldgrpmax.match
+#>> bash: /atlas/bin/cm: Argument list too long
+
+# works
+cm 5,4 sn_list_full.txt 2,1 /atlas-diff/02a/576*/*.ddt -tol 0.001,d -grp -max 50000000 > ddt.asn.tol0.001.dgrpmax.match
+
+# check number of matches using
+ls | wc -l ddt.asn.tol0.001.dgrpmax.match
+#>> 380 ddt.asn.tol0.001.dgrpmax.match
+}}}
+
+ * try variations
+{{{
+cm 5,4 sn_list_full.txt 2,1 /atlas-diff/02a/576*/*.ddt -tol 0.001 -grp -max 50000000 > ddt.asn.tol0.001.grpmax.match
+
+cm 5,4 sn_list_full.txt 2,1 /atlas-diff/02a/576*/*.ddt -tol 0.001,d -max 50000000 > ddt.asn.tol0.001.dmax.match
+
+cm 5,4 sn_list_full.txt 2,1 /atlas-diff/02a/576*/*.ddt -tol 0.001 -max 50000000 > ddt.asn.tol0.001.max.match
+
+cm 5,4 sn_list_full.txt 2,1 /atlas-diff/02a/576*/*.ddt -tol 0.001 > ddt.asn.tol0.001.match
+}}}
+  - they all worked
+
+ * check number of matches with each variation
+{{{
+# check # matched for each file ending in '.match'
+ls | wc -l *.match
+
+#>> 0 ddt.asn.tol0.001.alldgrpmax.match
+#>> 380 ddt.asn.tol0.001.dgrpmax.match
+#>> 0 ddt.asn.tol0.001.dmax.match
+#>> 380 ddt.asn.tol0.001.grpmax.match
+#>> 0 ddt.asn.tol0.001.match
+#>> 0 ddt.asn.tol0.001.max.match
+}}}
+
+ * only two variations that actually worked are
+{{{
+# remove all files and only run the two lines that generate useful matches
+rm *.match
+
+# run line with 'd' and '-grp'
+cm 5,4 sn_list_full.txt 2,1 /atlas-diff/02a/576*/*.ddt -tol 0.001,d -grp -max 50000000 > ddt.asn.tol0.001.dgrpmax.match
+
+# no 'd'
+cm 5,4 sn_list_full.txt 2,1 /atlas-diff/02a/576*/*.ddt -tol 0.001 -grp -max 50000000 > ddt.asn.tol0.001.grpmax.match
+
+# check number of matches in each file
+ls | wc -l *.match
+#>> 380 ddt.asn.tol0.001.dgrpmax.match
+#>> 380 ddt.asn.tol0.001.grpmax.match
+}}}
+  - as expected
+
+ * cp *.match files between server and local comp
+{{{
+# rsync match files (using ddt) down to local comp
+rsync -avz -e ssh cmutnik@atlas-base-adm01.ifa.hawaii.edu:/home/cmutnik/astr399/matched/ ~/work/classes/ASTR399/matched/.
+
+# transfer previously matched files (using lnk files) up to server
+rsync -avz -e ssh ~/work/classes/ASTR399/matched/lnk.asn.tol0.001.match cmutnik@atlas-base-adm01.ifa.hawaii.edu:/home/cmutnik/astr399/matched/.
+}}}
+
+ * look at data collected at earlier dates
+{{{
+# cm with earlier data
+cm 5,4 sn_list_full.txt 2,1 /atlas-diff/02a/575*/*.ddt -tol 0.001 -grp -max 50000000 > ddt.asn.tol0.001.575grpmax.match
+
+cm 5,4 sn_list_full.txt 2,1 /atlas-diff/02a/575*/*.ddt -tol 0.001,d -grp -max 50000000 > ddt.asn.tol0.001.575dgrpmax.match
+
+# cm with earliest data
+cm 5,4 sn_list_full.txt 2,1 /atlas-diff/02a/574*/*.ddt -tol 0.001 -grp -max 50000000 > ddt.asn.tol0.001.574grpmax.match
+
+cm 5,4 sn_list_full.txt 2,1 /atlas-diff/02a/574*/*.ddt -tol 0.001,d -grp -max 50000000 > ddt.asn.tol0.001.574dgrpmax.match
+
+cm 5,4 sn_list_full.txt 2,1 /atlas-diff/02a/573*/*.ddt -tol 0.001 -grp -max 50000000 > ddt.asn.tol0.001.573grpmax.match
+cm 5,4 sn_list_full.txt 2,1 /atlas-diff/02a/573*/*.ddt -tol 0.001,d -grp -max 50000000 > ddt.asn.tol0.001.573dgrpmax.match
+
+cm 5,4 sn_list_full.txt 2,1 /atlas-diff/02a/572*/*.ddt -tol 0.001 -grp -max 50000000 > ddt.asn.tol0.001.572grpmax.match
+cm 5,4 sn_list_full.txt 2,1 /atlas-diff/02a/572*/*.ddt -tol 0.001,d -grp -max 50000000 > ddt.asn.tol0.001.572dgrpmax.match
+}}}
+  - all result in 380 matches, except those using "/574*/"
+  - **Investigate this ^**
+
+ * from cm man page
+{{{
+cm has a second mode by which it compares a single file with itself,
+matching lines according to the requested tolerance, and creating
+groups using a friends-of-friends criterion (i.e. pairwise links
+within the tolerance hierarchically accrete until no member of the
+group links to any other point).  The syntax is slightly different
+in this case:
+
+  cm col1[,c2...] file1 -grp [options]
+}}}
+  - **dont use grp**
+
+
+----
+==== Meeting with JT ====
+ **<Fill in notes from meeting>**
+
+
+----
+=== 160926 ===
+ * put notes from last meeting with JT on here (in notebook)
+ * see [wiki:JTStatTrans#a160922 JT's page] for proper cm of obs and ASN data
+ * next meeting with JT will be Monday after LA trip
+  - remind him sunday before
+ * meeting with Ari to ask about vartest and link files
+  - idea on how to ID supernova from linkdet and vartest outputs files w/ proper params
+ * see if linkdet obj is real
+  - compare to PS
+ * replicate what JT did on the [wiki:JTStatTrans#a160922 22nd], using full asn list
+ * lookup program "vtscreen" Ari used to classify objects
+
+
+----
+==== Vartest output ====
+Met with Ari to better understand the output of vartest:
+{{{
+# change into a directory of a night we know was clear
+cd /atlas-diff/02a/57638
+
+# list all vartest output files in dir
+ls *.vtst
+
+# choose vartest file at random and pull the header
+head -1 02a57638o0748c.vtst
+#>> #INPUT_TPX      INPUT_TPY       DIFF_FLX        ORIG_FLX        STARRAT VERTAVERAGE     VERTDIFF        DIFF_TPX DIFF_TPY DIFFDELT        ORIGDELT        PLACEHOLDER
+}}}
+ * INPUT_TPX
+  - input x-pixel coordinate
+ * INPUT_TPY
+  - input y-pixel coordinate
+ * DIFF_FLX
+  - flux on difference image
+  - calculated using forced photometry, no centroiding
+ * ORIG_FLX
+  - flux on the original image
+ * STARRAT
+  - ORIG_FLX / DIFF_FLX
+  - we want this to be close to 1
+ * VERTAVERAGE
+  - attempt to detect vertical streaks
+  - uses detection locations determined by tphot
+  - subtracts off background
+ * VERTDIFF
+  - difference between the box at the center and the average
+  - tells us if were on a bright part of the streak
+ * DIFF_TPX
+  - recalculate x-pixel coordinate using gaussian centroiding
+  - iterates centroid 5 times to maximize speed and accuracy
+ * DIFF_TPY
+  - recalculate y-pixel coordinate using gaussian centroiding
+  - iterates centroid 5 times to maximize speed and accuracy
+ * DIFFDELT
+  - does vartest agree with tphot coordinates
+  - drastic difference means were likely sitting on a residual (artifact)
+ * ORIGDELT
+  - difference of centroid places on original image and one calculated for difference image
+  - large number means source moved, which happens on star residuals
+  - this is an internal parameter vartest uses
+ * PLACEHOLDER
+
+
+----
+==== Supernova Identification ====
+To identify Supernova we would want the following vartest parameters
+ * star ratio close to 1
+ * vertaverage to be low
+  - if its high, vertdiff must also be high
+ * diffdelt to be low
+ * origdelt to be low
+
+[[br]]
+
+To distinguish between an asteroid and and supernova, Ari suggests:
+ * read-in linkdet files
+ * isolate things with really low velocity
+ * search vartest files
+  - do this by using particular "Obs" name
+  - compare "tpx" and "tpy" coordinates from link file to those from vartest output
+ * desire
+  - minimum flux
+  - maximum star ratio
+  - (potentially) maximize vertaverage
+  - small origdelt and diffdelt
+   * for variable star to be considered real they had to be less than 0.3
+ * At this point, we need to examine by eye
+  - once Ive generated a list of x,y coordinates; talk to Ari about program to pull stamps from our obs
+
+
+EX:
+{{{
+cd /atlas-diff/02a/57638/LINK
+
+head TA036S02.lnk
+}}}
+ * output of:
+{{{
+#     ID   Ndet chi  xrms  trms    MJD0          u0RA      u0Dec     v      vRA     vDec tsprd Real Move  MB  Star Vert Edge Comb
+Obj 00000   5  2.42  0.62  1.45 57638.52771   39.1589    0.2350  0.0512 -0.0228 -0.0459  0.072 0.70 0.87 0.37 0.00 0.00 0.20 1.00
+# ID      Obs         det#     MJD          RA        Dec     tpx     tpy     m     dm   dcrs  dtrk    dt Nuse Preal Pstar
+00000 02a57638o0655c   197 57638.593377  39.15587   0.23183   306.8   437.9 18.59  0.11 -0.05 -0.55   5674 1 0.77 0.00
+00000 02a57638o0656c  2009 57638.594064  39.15595   0.23227  4921.6   313.8 18.71  0.14  0.40  1.12   5733 1 0.69 0.00
+00000 02a57638o0664c  1982 57638.598212  39.15589   0.23177  4885.4   373.1 18.61  0.14 -0.21  0.18   6092 1 0.68 0.00
+00000 02a57638o0665c   298 57638.598706  39.15582   0.23150   416.0 10017.1 19.02  0.18 -0.41 -0.72   6134 1 0.55 0.00
+00000 02a57638o0683c  3005 57638.608102  39.15558   0.23131 10178.6 10070.3 18.54  0.09  0.06  0.02   6946 1 0.82 0.00
+}}}
+
+Use particular observation to identify which vartest file to use...EX:\\
+for Obs == "02a57638o0655c"\\
+look at "02a57638o0655c.vtst"
+
+
+----
+=== 160927 ===
+Comparison of ASN data and our obs, do this by replicating [wiki:JTStatTrans#a160922 what JT did on the 22nd], but for the full atlas list "/home/cmutnik/astr399/matched/sn_list_full.txt"
+{{{
+# make new directory and change into it
+mkdir /home/cmutnik/astr399/asn_data;
+cd /home/cmutnik/astr399/asn_data
+
+# copy over full asn list
+cp /home/cmutnik/astr399/matched/sn_list_full.txt .
+
+# pull date from list and reformat
+awk 'NR>1 {print $3}' sn_list_full.txt | tr . ' ' | awk '{d=$2/100; h=int(d*24); m=int((d*24-h)*60); s=int(((d*24-h)*60-m)*60); printf "%sT%02d:%02d:%02d\n", $1,h,m,s}' > assasn.date
+
+date -u -f assasn.date +%s | awk '{printf "%10.4f\n", $1/86400+40587}' > assasn.mjd
+
+awk 'NR>1{printf "%9.5f %9.5f %7.4f %6.1f %3d %s %s\n", $4,$5,$6,$7,$11,$2,$10}' sn_list_full.txt > assasn.tmp
+
+paste -d ' ' assasn.mjd assasn.tmp > assasn.txt
+
+cat /atlas/red/02a/5*/5*.log > 02a.log
+
+cm 3,2,1 assasn.txt 12,11,2 02a.log -tol 3.8,d,50 > assasn.mch
+
+# change window to only 10 days
+cm 3,2,1 assasn.txt 12,11,2 02a.log -tol 3.8,d,10 > assasn_10day.mch
+}}}
+ * with a 50 day window: 11778 matches
+ * with 10 day window: 2300 matches
+
+----
+=== 161003 ===
+Continue replicating JTs work, using the 10 day span for matching
+{{{
+  cat assasn_10day.mch | while read LINE ; do
+    mjd=$(echo $LINE | awk '{print $1}')
+    ra=$(echo $LINE | awk '{print $2}')
+    dec=$(echo $LINE | awk '{print $3}')
+    obs=$(echo $LINE | awk '{print $10}')
+    typ=$(echo $obs | awk '{print substr($1,9,1)}')
+    if [[ $typ != "o" ]] ; then continue ; fi
+    m=$(echo $obs | awk '{print substr($1,4,5)}')
+    if [[ ! -e /atlas/diff/02a/$m/$obs.ddt ]] ; then continue ; fi
+    xy=$(sky2pix /atlas/red/02a/$m/$obs.fits.fz $ra $dec)
+    match=$(echo $xy | cm 1,2 - 5,6 /atlas/diff/02a/$m/$obs.ddt -tol 4)
+    if [[ -z "$match" ]] ; then continue ; fi
+
+    echo $LINE $match | awk '{printf "%10.5f %8.4f %8.4f %7.4f %6.1f %3d %s %-12s %s %11.5f %8.4f %8.4f %5.2f %4.2f %7.1f %7.1f\n", $1,$2,$3,$4,$5,$6,$7,$8,$10,$11,$27,$28,$29,$30,$31,$32}'
+  done > assasn.atlas.10days
+}}}
+627 observations\\
+header:
+{{{
+date_asn ra_asn dec_asn redshift_asn V_disc Disc_Age ID_asn Type ID_ATLAS date_ATLAS RA_ddt Dec_ddt m_ddt dm_ddt xtsk_ddt ytsk_ddt
+}}}
+
+Try to draw some connections
+{{{
+term
+data assasn.atlas.10days
+set x 5 colu
+set y 13 colu
+lim
+box
+poi
+}}}
+[[Image(magVSmag.png,20%)]]
+
+
+Rematch data, but don't restrict output...use output for comparison of ASN data to ddt files
+{{{
+  cat assasn_10day.mch | while read LINE ; do
+    mjd=$(echo $LINE | awk '{print $1}')
+    ra=$(echo $LINE | awk '{print $2}')
+    dec=$(echo $LINE | awk '{print $3}')
+    obs=$(echo $LINE | awk '{print $10}')
+    typ=$(echo $obs | awk '{print substr($1,9,1)}')
+    if [[ $typ != "o" ]] ; then continue ; fi
+    m=$(echo $obs | awk '{print substr($1,4,5)}')
+    if [[ ! -e /atlas/diff/02a/$m/$obs.ddt ]] ; then continue ; fi
+    xy=$(sky2pix /atlas/red/02a/$m/$obs.fits.fz $ra $dec)
+    match=$(echo $xy | cm 1,2 - 5,6 /atlas/diff/02a/$m/$obs.ddt -tol 4)
+    if [[ -z "$match" ]] ; then continue ; fi
+
+    echo $LINE $match | awk '{print $0}'
+  done > assasn.atlas.fulldat.10d.cor
+}}}
+ * has header of
+ {{{
+  date_asn ra_asn dec_asn redshift_asn V_disc Disc_Age ID_asn Type | #Observation MJD Filt Foc Etime TCCD Sky FWHM Nstar ZP RA Dec QC Object x? y? | RA Dec m dm xtsk ytsk Peak Sky chin var-krn Pstar Pkast Preal star dstar mstar kast dkast
+ }}}
+  - incorrect...off by 1, header needs fixing
+
+----
+ ** Restructure of directories **
+{{{
+cd /data/home/cmutnik/astr399
+mkdir data
+
+# move the ATLAS and asn data into new dir
+mv data_ATLAS data/.
+mv asn_data data/.
+}}}
+----
+
+
+Need all data overlayed
+{{{
+ * data assasn.atlas.10days
+ * xc 10
+ * uc 29
+ * vc 30
+ * set m 42 colu
+ * set y u - m
+ * set y y / v
+ * lim
+ * box
+ * poi
+}}}
+[[Image(needOverlayallddt.png,20%)]]
+
+
+Using the observation ID, all the ddt files were copied to a new directory and concatenated together
+{{{
+awk 'NF==18; {print $0}' *.ddt > Allddts.cor
+}}}
+
+Python script took to long, rewrote in mongo\\
+plot data from ddt files\\
+overlay ASN data after cm it to ddt files
+{{{
+cd /data/home/cmutnik/astr399/data/data_ATLAS
+
+mongo
+term
+data Allddts.cor
+xc 3
+yc 16
+erase
+lim
+box
+poi
+
+data /data/home/cmutnik/astr399/data/asn_data/assasn.atlas.fulldat.10d.cor
+xc 29
+yc 42
+poi
+}}}
+[[Image(populate.png,20%)]]
+[[Image(pop2.png,20%)]]\\
+How to add color in mongo?
+
+
+Try looking at this
+{{{
+mongo
+term
+data assasn.atlas.10days
+xc 10
+uc 5
+vc 13
+set u u - v
+set y u / 14
+lim
+box
+poi
+}}}
+ * once py script finished, since plots cant be generated in screen
+[[Image(sigmag.png,20%)]]
+
+
+
+----
+=== 161004 ===
+To plot in color, using mongo
+{{{
+  color 2 1 0 0
+}}}
+
+Remake the plots above, overlaying in color
+{{{
+cd /data/home/cmutnik/astr399/data/data_ATLAS
+
+mongo
+term
+data Allddts.cor
+xc 3
+yc 16
+erase
+lim
+box
+poi
+
+data /data/home/cmutnik/astr399/data/asn_data/assasn.atlas.fulldat.10d.cor
+xc 29
+yc 42
+color 2 1 0 0
+poi
+}}}
+[[Image(color_overlay.png,20%)]]
+
+
+----
+==== link files ====
+Remove old link files copied over and recopy them, only copying TA*.lnk files from in and outside of 'LINK' dir
+{{{
+cd /home/cmutnik/astr399/linked
+rm *
+
+screen -r links
+
+rsync -R /atlas-diff/02a/5*/TA*.lnk /home/cmutnik/astr399/linked
+}}}
+ * this shows link files created in: 57320 - 57511 
+
+To copy the rest of the link files...modify and rerun these, pulling link files in specific 'LINK' dir
+{{{
+rsync -R /atlas-diff/02a/5*/LINK/TA*.lnk /home/cmutnik/astr399/linked
+
+# if list to long, run as
+#rsync -R /atlas-diff/02a/57*/LINK/ /home/cmutnik/astr399/linked
+}}}
+ * extends to 57664
+
+** Remove these files ** and use grep to pull only desired lines
+{{{
+	# worked, so all these files can be removed
+	cd ~/astr399
+	rm -rf linked
+}}}
+
+piece together all link files pertinent to our needs
+{{{
+	cd /data/home/cmutnik/astr399/data/linked
+
+	screen -r links
+
+	# all link files, outside of 'LINK' dir
+	grep Obj /atlas-diff/02a/5*/TA*.lnk > links.lnk
+
+	# check how long it is so far
+	ls | wc -l links.lnk 
+	#>> 3069134 links.lnk
+
+	# add link files located in specific 'LINK' dir
+	grep Obj /atlas-diff/02a/5*/LINK/TA*.lnk >> links.lnk
+
+	# check the final length
+	ls | wc -l links.lnk
+	#>> 9794767 links.lnk
+
+	# rename file from the dates the exist in
+	mv links.lnk links.57320.57664.lnk
+}}}
+
+ * Header of 'links.57320.57664.lnk':
+{{{
+#     ID   Ndet chi  xrms  trms    MJD0          u0RA      u0Dec     v      vRA     vDec tsprd Real Move  MB  Star Vert Edge Comb
+}}}
+  - Note that there are 20 columns
+  - First column is '#', it is not just used to comment out the line, it is actually a column heading 
+
+
+Check all lines in catted link file have same # of columns
+{{{
+	cd ~/astr399/data/linked
+	awk '{print NF}' links.57320.57664.lnk
+	awk 'NF!=20{print NR, NF}' links.57320.57664.lnk
+#>> 1175415 14
+}}}
+
+
+Remove row with improper number of columns
+{{{
+	awk 'NF==20{print $0}' links.57320.57664.lnk > links.lnk
+
+	# rm old file and rename new file, to replace old file
+	rm links.57320.57664.lnk
+	mv links.lnk links.57320.57664.lnk
+
+	# check number of rows
+	ls | wc -l links.57320.57664.lnk 
+#>> 9794766 links.57320.57664.lnk
+}}}
+
+
+Also, copy over linkdet.c again...accidentally deleted it
+{{{
+rsync /atlas/src/trunk/sci/linkroid/linkdet.c /home/cmutnik/astr399/data/linked/.
+}}}
+
+
+----
+Copy over the mongo manual to figure out how to increase the max
+{{{
+# location of mongo stuff
+cd /data/home/atlas/work/actest/jtsoft/monsta/libmongo
+
+# copy it all
+rsync -avz /data/home/atlas/work/actest/jtsoft ~/astr399
+}}}
+
+
+----
+Try replicating first plots, using new link files 'Obj' lines
+{{{
+cd /home/cmutnik/astr399/data/linked/
+
+export MONGOSIZE=10000000
+mongo
+term
+data links.57320.57664.lnk
+xc 10
+uc 5
+vc 6
+set u u * U
+set v v * v
+set y u + v
+set y y sqrt
+xlog
+ylog
+lim
+box
+poi
+# pipeline throws junk out to -50, which begs for limit restrictions
+lim -4 1 -1.5 1
+erase
+box
+poi
+}}}
+ * fails because column numbers are off...need to **track down the error**
+
+Try remaking it with a portion of the link data again
+{{{
+screen -S lin
+
+cd ~/astr399/data/linked/
+
+# make file for link files not in separate "LINK" dir
+grep Obj /atlas-diff/02a/5*/TA*.lnk > no.sep.dir.57320.57511.lnk
+
+# make file for link files in separate "LINK" dir
+grep Obj /atlas-diff/02a/5*/LINK/TA*.lnk > sep.dir.upto.57664.lnk
+}}}
+
+Check column numbers
+{{{
+# check colu # for first new file
+awk '{print NF}' no.sep.dir.57320.57511.lnk
+awk 'NF!=20{print NR, NF}' no.sep.dir.57320.57511.lnk
+#>> 1175415 14
+
+# check colu # for second new file
+awk '{print NF}' sep.dir.upto.57664.lnk
+awk 'NF!=20{print NR, NF}' sep.dir.upto.57664.lnk
+#>> [nothing]
+
+# fix first new file
+awk 'NF==20{print $0}' no.sep.dir.57320.57511.lnk > tmp.foo
+rm no.sep.dir.57320.57511.lnk
+mv tmp.foo no.sep.dir.57320.57511.lnk
+}}}
+
+
+Remake plot for both files
+{{{
+mongo
+term
+data sep.dir.upto.57664.lnk
+
+data no.sep.dir.57320.57511.lnk
+xc 10
+uc 5
+vc 6
+set u u * U
+set v v * v
+set y u + v
+set y y sqrt
+xlog
+ylog
+lim
+box
+poi
+}}}
+ * no.sep.dir.57320.57511.lnk still fails
+ * sep also still fails
+[[Image(no.sep.dirs.fails.png,20%)]]
+
+Tried it in mongo, python, and Gnuplot...keeps failing...even after truncating it down...need a break
+
+Gnuplot works: g.sepnosep.plt
+{{{
+gnuplot
+set key off
+set logscale x
+set logscale y
+set title 'Sep Dir'
+set xlabel 'v'
+set ylabel 'rms'
+plot "sep.dir.upto.57664.lnk" u 10:($5**2 + $6**2)**0.5 t ' ' w p
+
+reset
+
+set key off
+set logscale x
+set logscale y
+set title 'No Sep Dir'
+set xlabel 'v'
+set ylabel 'rms'
+plot "no.sep.dir.57320.57511.lnk" u 10:($5*$5 + $6*$6)**0.5 w p
+}}}
+ * LHS: Sep Dir
+ * RHS No Sep Dir
+[[Image(gnuplot.sep.png,20%)]]
+[[Image(gnuplot.nosep.png,20%)]]
+
+
+Python worked, although the code is rudimentary...it works: realdat.py
+{{{
+import numpy as np
+import matplotlib.pyplot as plt
+
+dn = np.genfromtxt('no.sep.dir.57320.57511.lnk')
+x = dn[:,9]#10]
+u = dn[:,4]#5]
+v = dn[:,5]#6]
+w = u * u
+z = v * v
+y = w + z
+y = np.sqrt(y)
+plt.clf()
+plt.loglog(x, y, '.k')
+plt.savefig('nosep.png')
+
+print 'finished nosep\nstarting sep'
+
+dn = np.genfromtxt('sep.dir.upto.57664.lnk')
+x = dn[:,9]
+u = dn[:,4]
+v = dn[:,5]
+w = u * u
+z = v * v
+y = w + z
+y = np.sqrt(y)
+plt.clf()
+plt.loglog(x, y, '.k')
+plt.savefig('sep.png')
+
+print '\nfinished sep\nstarting full data'
+
+dn = np.genfromtxt('links.57320.57664.lnk')
+x = dn[:,9]
+u = dn[:,4]
+v = dn[:,5]
+w = u * u
+z = v * v
+y = w + z
+y = np.sqrt(y)
+plt.clf()
+plt.loglog(x, y, '.k')
+plt.savefig('sepnosep.png')
+
+print 'finished fulldata: sepnosep'
+}}}
+ * from left to right, in order they were made
+[[Image(nosep.png,20%)]]
+[[Image(sep.png,20%)]]
+[[Image(sepnosep.png,20%)]]
+
+
+----
+awk '{print $25}' /data/home/cmutnik/astr399/data/asn_data/assasn.atlas.fulldat.10d.cor
+cm 5,4 sn_list_full.txt 2,1 /atlas-diff/02a/575*/*.ddt -tol 0.001,d -grp -max 50000000
+
+Need to track down column # error before proceeding
+once done:
+ * cm with link files
+ * plot link data
+  - mimic 1st plot
+ * overlay matched data
+ * look for trends
+
+----
+ * trying to track down error
+ {{{
+  cat assasn_10day.mch | while read LINE ; do
+    mjd=$(echo $LINE | awk '{print $1}')
+    ra=$(echo $LINE | awk '{print $2}')
+    dec=$(echo $LINE | awk '{print $3}')
+    obs=$(echo $LINE | awk '{print $10}')
+    typ=$(echo $obs | awk '{print substr($1,9,1)}')
+    if [[ $typ != "o" ]] ; then continue ; fi
+    m=$(echo $obs | awk '{print substr($1,4,5)}')
+    if [[ ! -e /atlas/diff/02a/$m/$obs.ddt ]] ; then continue ; fi
+    xy=$(sky2pix /atlas/red/02a/$m/$obs.fits.fz $ra $dec)
+    match=$(echo $xy | cm 1,2 - 5,6 /atlas/diff/02a/$m/$obs.ddt -tol 4)
+    if [[ -z "$match" ]] ; then continue ; fi
+
+    echo $LINE $match
+  done > take2.assasn.atlas.fulldat.10d.cor
+
+
+  awk '{print NF}' take2.assasn.atlas.fulldat.10d.cor
+
+  awk '$25!="|"{print $25}' take2.assasn.atlas.fulldat.10d.cor
+ }}}
+
+
+----
+Need to see how link data matches up with asn data that has already been cm'ed with obs
+{{{
+# shouldnt need a -tol since is cm obs with obs
+screen -r linky
+cd /data/home/cmutnik/astr399/data/linked
+cm 12,11,10 ../asn_data/assasn.atlas.10days 9,8,7 links.57320.57664.lnk > cmasn/asn.lnk.match
+
+# cm with a tolerance since these are Obj lines and might not be perfect matches
+screen -r linkyTol
+cd /data/home/cmutnik/astr399/data/linked
+cm 12,11,10 ../asn_data/assasn.atlas.10days 9,8,7 links.57320.57664.lnk -tol 0.01,d,10 > cmasn/tol.asn.lnk.match
+
+# cm with non-relative links, just to have it running (shouldnt effect output)
+screen -r linkyNonRel
+cd /data/home/cmutnik/astr399/data/linked
+cm 12,11,10 /data/home/cmutnik/astr399/data/asn_data/assasn.atlas.10days 9,8,7 /data/home/cmutnik/astr399/data/linked/links.57320.57664.lnk > cmasn/nonrel.asn.lnk.match
+}}}
+
+[[br]]
+
+Once done - remake plots with cm data overlayed
+
+----
+Might have found the error
+** typo ** 
+{{{
+set u u + u
+
+# NOT
+set u u + U
+}}}
+
+
+----
+ ** Look into **
+Did I mess up JTs script somewhere?  NF is inconsistent
+{{{
+awk '{print NF}' /data/home/cmutnik/astr399/data/asn_data/assasn.atlas.fulldat.10d.cor
+#>> 43
+
+awk 'NF!=43{print NR, NF}' /data/home/cmutnik/astr399/data/asn_data/assasn.atlas.fulldat.10d.cor
+}}}
+ * there is a mistake between column 9 and 25 then after the end, some lines have way to many fields
+ {{{
+ # check for mistake on line 9
+  awk '$9!="|"{print $0}' assasn.atlas.fulldat.10d.cor > hold.foo
+  awk '$9!="D"{print $9}' hold.foo 
+
+ # check for mistake on line 25
+  awk '$25!="|"{print $0}' assasn.atlas.fulldat.10d.cor > hold.foo
+  awk '$25!="D"{print $25}' hold.foo
+ }}}
+
+
+
+----
+=== 161006 ===
+
+ * ** cm error **
+When I try to cm the data I keep getting this error:\\
+The program 'cm' is currently not installed. To run 'cm' please ask your administrator to 
+install the package 'config-manager'\\
+ * emailed JT and Larry about it
+ * pull files to laptop and cm there
+
+----
+ * need to run
+{{{
+# rename file so other, similar ones, can be made
+cd ~/astr399/data/linked/cmasn
+mv tol.asn.lnk.match tol0.01.asn.lnk.match
+
+# cm with newer, more restrictive, tol
+screen -S links
+cd ~/astr399/data/linked
+cm 12,11,10 ../asn_data/assasn.atlas.10days 9,8,7 links.57320.57664.lnk -tol 0.001,d,10 > cmasn/tol0.001.asn.lnk.match
+
+# cm using non-relative links with tolerance
+screen -S nr
+cd ~/astr399/data/linked
+cm 12,11,10 ~/astr399/data/asn_data/assasn.atlas.10days 9,8,7 ~/astr399/data/linked/links.57320.57664.lnk -tol 0.01,d,10 > cmasn/nonrel.tol0.01.asn.lnk.match
+
+# cm using non-relative links with more restrictive tol
+screen -S nrt2
+cd ~/astr399/data/linked
+cm 12,11,10 ~/astr399/data/asn_data/assasn.atlas.10days 9,8,7 ~/astr399/data/linked/links.57320.57664.lnk -tol 0.001,d,10 > cmasn/nonrel.tol0.001.asn.lnk.match
+}}}
+ * header of these *.match files
+ {{{
+ date_asn ra_asn dec_asn redshift_asn V_disc Disc_Age ID_asn Type ID_ATLAS date_ATLAS RA_ddt Dec_ddt m_ddt dm_ddt xtsk_ddt ytsk_ddt | # ID Ndet chi xrms trms MJD0 u0RA u0Dec v vRA vDec tsprd Real Move MB Star Vert Edge Comb
+ }}}
+now plots need to be remade, with this data overlayed, hopefully resulting trend identification
+
+
+Files that should be identical in {{{cd ~/astr399/data/linked/cmasn}}}\\
+ * nonrel.tol0.01.asn.lnk.match == tol0.01.asn.lnk.match
+ * nonrel.tol0.001.asn.lnk.match == tol0.001.asn.lnk.match
+{{{
+cd /home/cmutnik/astr399/data/linked/cmasn
+ls | wc -l *
+#>>   0 nonrel.asn.lnk.match
+#>> 674 nonrel.tol0.001.asn.lnk.match
+#>> 700 nonrel.tol0.01.asn.lnk.match
+#>> 674 tol0.001.asn.lnk.match
+#>> 700 tol0.01.asn.lnk.match
+}}}
+  - 0 lines in "nonrel.asn.lnk.match" shows a set tolerance is needed
+
+Pulled files down to local comp
+{{{
+cd ~/work/classes/ASTR399/data
+rsync -avz -e ssh cmutnik@atlas-base-adm01.ifa.hawaii.edu:/home/cmutnik/astr399/data/linked .
+}}}
+
+
+----
+Moved files on laptop after rsync down files from server
+{{{
+# rsync down data
+rsync -avz -e ssh cmutnik@atlas-base-adm01.ifa.hawaii.edu:~/astr399/data/asn_data ~/work/classes/ASTR399/data/.
+
+# restructure dir on laptop
+cd ~/work/classes/ASTR399/data
+mv asassn_data asn_data/laptop_asassn_data
+}}}
+
+
+----
+once cm works again, run
+{{{
+screen -r varmod
+cd /home/cmutnik/astr399/data/var
+chmod a+x *
+./SN_LC.sh
+
+./lnk.SN.LC.sh
+}}}
+
+----
+fixed cm, my paths were incorrect
+
+
+----
+=== 161007 ===
+Replot the data from the lnk files, this time - overlay supernova IDed by asn
+ * overlay.lnk.py
+{{{
+#!/bin/python
+# Corey Mutnik 161007
+# Python script to plot all data from lnk files
+# overlay data with asn data, after matching to obs
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# open file containing all lnk Obj lines
+dn = np.genfromtxt('links.57320.57664.lnk')
+x = dn[:,9]
+u = dn[:,4]
+v = dn[:,5]
+u = u * u
+v = v * v
+y = u + v
+y = np.sqrt(y)
+
+asnlnk = np.genfromtxt('cmasn/tol0.001.asn.lnk.match')
+asnx, asnu, asnv = asnlnk[:,26], asnlnk[:,21], asnlnk[:,22]
+asnu, asnv = asnu**2, asnv**2
+asny = np.sqrt(asnu + asnv)
+
+plt.clf()
+plt.xlabel('log(v)')
+plt.ylabel('(xrms^2+trms^2)^{1/2}')
+plt.loglog(x, y, '.k')
+
+print 'finished plotting all lnk data'
+plt.loglog(asnx, asny, 'or')
+plt.savefig('overlay.sepnosep.png')
+}}}
+[[Image(overlay.sepnosep.png,20%)]]
+
+
+While we wait, why not plot it up in gnuplot too, it runs faster...don't forget the indices change
+ * asn.lnk.sep.nosep.plt
+{{{
+# Gnuplot script to plot all data from lnk files
+# overlay data with asn data, after matching to obs
+
+set terminal png nocrop enhanced size 900,700 font 'arial,18'
+set out 'gnu.asn.lnk.png'
+
+set key off
+set logscale x
+set logscale y
+
+#set title 'Sep Dir'
+set xlabel 'v'
+set ylabel 'rms'
+
+plot "sep.dir.upto.57664.lnk" u 10:($5**2 + $6**2)**0.5 w p t 'all lnk' lc rgb 'blue', \
+  "no.sep.dir.57320.57511.lnk" u 10:($5*$5 + $6*$6)**0.5 w p t 'all lnk' lc rgb 'blue', \
+  "cmasn/tol0.001.asn.lnk.match" u 27:($22*$22 + $23*$23)**0.5 w p t 'ASN SN' lc rgb 'black'
+}}}
+[[Image(gnu.asn.lnk.png,20%)]]
+
+
+change to param space, fit a contour - allowing determination of probability densities (where SN live)...the region is still to large, need to isolate range more
+
+----
+build LC for specific SN by cm matched ASN with /atlas/red/02a/*/*.log\\
+ * use dec,ra not mjd
+{{{
+screen -r asn.log
+cd ~/astr399/data/linked
+
+cm 12,11 ../asn_data/assasn.atlas.10days 12,11 /atlas/red/02a/*/*.log -tol 0.001,d > cmasn/asn.log.match
+}}}
+
+
+
+----
+=== 161009 ===
+Jumped the gun by trying to draw connection intrinsic to only SN
+{{{
+# generate plots that show all data with asn SN overlayed
+# these files are on local comp
+ls ~/work/classes/ASTR399/data/linked/foof/*.py
+#>> overlay.lnk.py
+#>> realdat.py
+
+ls ~/work/classes/ASTR399/data/linked/*.plt
+#>> asn.lnk.sep.nosep.plt
+#>> g.sepnosep.plt
+
+ls ~/work/classes/ASTR399/data/linked/foof/*.plt
+#>> gnuplotLC.plt
+#>> other.params.xtrms.plt
+#>> xtrms.sq.plt
+}}}
+In foof:\\
+[[Image(xrms.trms.loglog.png,20%)]]\\
+
+
+{{{cd ~/work/classes/ASTR399/data/linked/foof/otherparams}}}:\\
+[[Image(otherparams.chi.loglog.png,20%)]]
+[[Image(otherparams.chi2.loglog.png,20%)]]
+[[Image(otherparams.chi2.logv.loglog.png,20%)]]\\
+
+
+{{{cd ~/work/classes/ASTR399/data/linked/foof/xtrms_squared}}}\\
+[[Image(xt.loglog.png,20%)]]\\
+
+
+
+
+----
+ * LC.foof.sh
+{{{
+#!/bin/bash
+
+#cd ~/astr399/data/linked
+#mkdir foof
+cd ~/astr399/data/linked/foof
+
+# Get all non-bad observations
+if [[ ! -e all.good.log ]] ; then
+  echo Regenerating list of all decent observations...
+  for m in {57177..57668} ; do
+    awk '$5>=20 && $8<3 && $8!=0 && $9>500 && $10>15 && $11!=0 && $12!=0{print $0}' /atlas/red/02a/$m/$m.log
+  done > all.good.log
+fi
+
+#cm 2,1 - 12,11 all.good.log -tol 3.5,d | awk '{print $4}' > list.tol3.5.all.good.log
+#cm 2,1 - 12,11 all.good.log -tol 0.001,d > list.all.good.log
+cm 12,11 ~/astr399/data/asn_data/assasn.atlas.10days 12,11 all.good.log -tol 3.5,d | awk '{print $4}' > list.tol3.5.all.good.log
+
+cm 12,11 ~/astr399/data/asn_data/assasn.atlas.10days 12,11 all.good.log -tol 0.001,d > list.all.good.log
+
+cm 3,2 ~/astr399/data/asn_data/assasn.atlas.10days 12,11 all.good.log -tol 0.001,d > asnRaDec.list.all.good.log
+
+
+# Get all observations
+if [[ ! -e full.log ]] ; then
+  echo Regenerating list of all decent observations...
+  for m in {57177..57668} ; do
+    awk '{print $0}' /atlas/red/02a/$m/$m.log
+  done > full.log
+fi
+
+#cm 2,1 - 12,11 full.log -tol 3.5,d | awk '{print $4}' > list.tol3.5.full.log
+#cm 2,1 - 12,11 full.log -tol 0.001,d > list.full.log
+cm 12,11 ~/astr399/data/asn_data/assasn.atlas.10days 12,11 full.log -tol 3.5,d | awk '{print $4}' > list.tol3.5.full.log
+
+cm 12,11 ~/astr399/data/asn_data/assasn.atlas.10days 12,11 full.log -tol 0.001,d > list.full.log
+
+cm 3,2 ~/astr399/data/asn_data/assasn.atlas.10days 12,11 full.log -tol 0.001,d > asnRaDec.full.log
+}}}
+ * results
+ {{{
+ ls | wc -l *
+ #>>      35 LC.foof.sh
+ #>>     37 all.good.log
+ #>>    121 asnRaDec.full.log
+ #>>      0 asnRaDec.list.all.good.log
+ #>> 159282 full.log
+ #>>      0 list.all.good.log
+ #>>     11 list.full.log
+ #>>     33 list.tol3.5.all.good.log
+ #>> 123803 list.tol3.5.full.log
+ }}}
+
+remove duplicate lines, the are designated by cm with a "D" ($17 here)
+{{{
+awk '$17=="|"{print $0}' asnRaDec.full.log > asnRaDec.full.log.noDubs
+}}}
+
+
+construct LC for asn object in asnRaDec.full.log.noDubs file: "ASASSN-15tg"
+ * gnuplotLC.plt
+{{{
+#set out "mjd.vs.m.png"
+set title 'LC: ASASSN-15tg'
+set xlabel 'MJD (ATLAS)'
+set ylabel 'm'
+set key off
+plot "asnRaDec.full.log.noDubs" u 10:13:14 w yerrorbars lc rgb "black"
+
+reset
+
+#set out "mjd.vs.dm.png"
+set title 'LC: ASASSN-15tg'
+set xlabel 'MJD (ATLAS)'
+set ylabel 'dm'
+set key off
+plot "asnRaDec.full.log.noDubs" u 10:14 w p lc rgb "red"
+}}}
+[[Image(mjd.vs.m.FixedColNum.png​,20%)]]
+[[Image(mjd.vs.dm.FixedColNum.png​,20%)]]
+
+----
+Push work to server
+{{{
+rsync -avz -e ssh ~/work/classes/ASTR399/data/linked cmutnik@atlas-base-adm01.ifa.hawaii.edu:~/astr399/data/linked/.
+}}}
+
+
+----
+=== 161010 ===
+
+Isolate asn objects, so LC can be constructed
+{{{
+cd ~/work/classes/ASTR399/data/linked/cmasn
+
+awk '{print $7}' tol0.01.asn.lnk.match > obj.list
+
+# EX: print row and field numbers for a particluar obj
+awk '$7=="ASASSN-16ke"{print NR, NF}' tol0.01.asn.lnk.match
+}}}
+
+
+----
+Ari has program that pulls stamps from desired images\\
+To use "skyscout" it needs to be added to my PATH...add this to ~/.bash_cm_pro:
+{{{
+# add Ari's progams to path, so I can use skyscout
+export PATH=$PATH:/atlas/src/extern/aheinze
+}}}
+
+Now skyscout can be used by typing
+{{{
+skyscout02
+}}}
+
+Ari has made directory and copied fitz into it, since skyscout requires all images be in same dir
+{{{
+cd /atlas/red/02a/Supernovae
+}}}
+
+Need to modify the first column in "searchlist.txt" to include the correct dir path for each image
+ * searchlist.txt
+{{{
+# Ari generated current searchlist using this loop
+zpthresh=21.0
+  for obs in *.fz ; do
+    pstring=$(fitshdr $obs -v MJD-OBS RA DEC MAGZPT)
+    zp=$(fitshdr $obs -v MAGZPT)
+    if [[ $zp > $zpthresh ]] ; then
+    printf "%s %s\n" "$obs" "$pstring" 
+    fi
+  done > searchlist.txt
+}}}
+  - if $zp statement makes sure it doesnt use cloudy images
+
+
+ * searchlist.with.paths.txt
+{{{
+# a searchlist file needs to contain 
+#>> image name, MJD, RA, Dec, and mag zeropoint, in that order.
+# modify Ari's bash loop to include fitz.fz paths
+}}}
+
+For the ephem file make it 2 lines long, each with three columns: MJD, RA, Dec\\
+first line make MJD way before obs\\
+second line make MJD way after obs
+ * EX: ASASSN-16j.ephem.txt:
+{{{
+54000  31.7133  14.7226
+58600  31.7133  14.7226
+}}}
+
+Run skyscout by using the following command, where the outputs are set accordingly
+{{{
+skyscout02 searchlist.txt ASASSN-16ke_ephem.txt 3.5 150 3 ASASSNtesty ASASSNtesty.txt
+}}}
+
+
+----
+Full skyscout example:\\
+{{{
+# Running in screen
+screen -r skyscout
+
+# Pull data on desired object
+less ~/astr399/data/asn_data/assasn.atlas.10days
+
+# choose object and make ephem file
+#57627.58000 356.7988  10.0832  0.0340   17.2  -8 ASASSN-16jj
+}}}
+
+ * ASASSN-16jj_ephem.txt:
+{{{
+53000 356.7988  10.0832
+59000 356.7988  10.0832
+}}}
+
+run skyscout with output of *testC*
+{{{
+skyscout02 searchlist.txt ASASSN-16jj_ephem.txt 3.5 150 3 ASASSNtestC ASASSNtestC.txt
+#>> 5 stamps found and pulled
+}}}
+
+pull files down to local comp and blink through them using DS9
+{{{
+cd /Users/cmutnik/work/classes/ASTR399/data/skyscout
+mkdir testC
+cd testC
+rsync -avz -e ssh cmutnik@atlas-base-adm01.ifa.hawaii.edu:/atlas/red/02a/Supernovae/*testC* .
+}}}
+
+# rsync skyscout example results to new dir on server
+{{{
+rsync -avz -e ssh ~/work/classes/ASTR399/data/skyscout/testC cmutnik@atlas-base-adm01.ifa.hawaii.edu:~/astr399/data/skyscout/testC/.
+}}}
+
+----
+Remake searchlist s.t. the first column (filename) includes the full path...this will allow for the 
+pulling of stamps that occurred before and after asn observations of SN 
+{{{
+screen -r searchlistPaths
+chmod +x searchlist.with.paths.sh
+./searchlist.with.paths.sh
+}}}
+
+* searchlist.with.paths.sh
+{{{
+  zpthresh=21.0
+  for obs in /atlas/red/02a/*/*.fz ; do
+    pstring=$(fitshdr $obs -v MJD-OBS RA DEC MAGZPT)
+    zp=$(fitshdr $obs -v MAGZPT)
+    if [[ $zp > $zpthresh ]] ; then
+    printf "%s %s\n" "$obs" "$pstring" 
+    fi
+  done > searchlist.with.paths.txt
+}}}
+
+
+Now rerun skyscuot using the new searchlist
+{{{
+cd /home/cmutnik/astr399/data/skyscout
+
+mkdir testC_with_paths
+cd testC_with_paths/
+
+# copy over ephem file
+scp /atlas/red/02a/Supernovae/ASASSN-16ke_ephem.txt .
+
+# rerun skyscout using newly created searchlist
+skyscout02 ../searchlist.with.paths.txt ASASSN-16ke_ephem.txt 3.5 150 3 ASASSNtestC_paths ASASSNtestC_paths.txt
+}}}
+  - fails with error
+  {{{
+  ERROR: you have 166135 images: max is 10000
+  }}}
+  - is there a way to increase the max...I will email Ari to ask
+
+
+----
+* relocate files
+{{{
+cd /data/home/cmutnik/astr399/matched
+mkdir pre.161004
+mv * pre.161004/.
+}}}
+
+
+
+----
+** Quantify** \\
+There are 380 asn SN
+{{{
+ls | wc -l ~/work/classes/ASTR399/data/asn_data/sn_list_full.txt
+#>> 381
+}}}
+  - minus 1 line for the header: 380 SN
+ 
+
+Check how long initial asn list and matchings are
+{{{
+cd /home/cmutnik/astr399/data/asn_data
+ls | wc -l assasn.atlas.10days
+#>> 627 assasn.atlas.10days
+}}}
+  - 627 matches
+To do this, make a new dir to work in
+{{{
+cd /Users/cmutnik/work/classes/ASTR399/matched
+mkdir 161010
+cd 161010
+
+# copy over necessary files
+cp ~/work/classes/ASTR399/data/asn_data/assasn.atlas.10days .
+}}}
+
+
+ * symmetric_matching.py
+{{{
+#mchfile='../../data/asn_data/assasn.atlas.10days'
+mchfile = ascii.read('assasn.atlas.10days')
+mchfile.colnames
+#>> ['col1','col2','col3','col4','col5','col6','col7','col8','col9','col10','col11','col12','col13','col14','col15','col16']
+'''
+#header of: assasn.atlas.10days:
+1 - date_asn
+2 - ra_asn
+3 - dec_asn
+4 - redshift_asn
+5 - V_disc
+6 - Disc_Age
+7 - ID_asn
+8 - Type
+9 - ID_ATLAS
+10 - date_ATLAS
+11 - RA_ddt
+12 - Dec_ddt
+13 - m_ddt
+14 - dm_ddt
+15 - xtsk_ddt
+16 - ytsk_ddt
+'''
+
+# initialize
+#date_plus, date_minus = 0,0
+disc_window = 0
+for k in range(len(mchfile)):
+  # subt disc_age from asn_mjd, to get the date at discovery
+  asn_mjd = int(mchfile['col1'][k])
+  disc_age = mchfile['col6'][k]
+  disc_date = asn_mjd - disc_age
+  atlas_mjd = int(mchfile['col10'][k])
+
+  disc_date_plus, disc_date_minus = disc_date + abs(disc_age), disc_date - abs(disc_age)
+  
+  if (disc_date_plus >= atlas_mjd) and (disc_date_minus <= atlas_mjd):
+    #print 'disc date mchs flooring'
+    disc_window += 1
+    print mchfile['col9'][k]
+#print 'Number of ATLAS obs that match (asn SN discovery dates +/- discovery age): ', date_plus, date_minus
+print 'Number of ATLAS obs that match (asn SN discovery dates +/- discovery age): ', disc_window
+#>> Number of ATLAS obs that match (asn SN discovery dates +/- discovery age):  261
+
+}}}
+  - of the 627 total matches, 261 fall within the symmetric window
+
+To make file "yesASN_yesATLAS.list" [[Image(yesASN_yesATLAS.list,10%)]]:
+{{{
+disc_window = 0
+for k in range(len(mchfile)):
+  asn_mjd = int(mchfile['col1'][k])
+  disc_age = mchfile['col6'][k]
+  disc_date = asn_mjd - disc_age
+  atlas_mjd = int(mchfile['col10'][k])
+  disc_date_plus, disc_date_minus = disc_date + abs(disc_age), disc_date - abs(disc_age)
+  
+  if (disc_date_plus >= atlas_mjd) and (disc_date_minus <= atlas_mjd):
+    disc_window += 1
+    print mchfile['col9'][k]
+}}}
+
+To make file "noASN_yesATLAS.list" [[Image(noASN_yesATLAS.list,10%)]]:
+{{{
+disc_window = 0
+for k in range(len(mchfile)):
+  asn_mjd = int(mchfile['col1'][k])
+  disc_age = mchfile['col6'][k]
+  disc_date = asn_mjd - disc_age
+  atlas_mjd = int(mchfile['col10'][k])
+  disc_date_plus, disc_date_minus = disc_date + abs(disc_age), disc_date - abs(disc_age)
+  if (disc_date_plus >= atlas_mjd) and (disc_date_minus <= atlas_mjd):
+    #print 'disc date mchs flooring'
+    disc_window += 1
+  else:
+    print mchfile['col9'][k]
+}}}
+
+"noASN_yesATLAS.list" is made of observations that occur in ATLAS data but outside the ASN window, after symmetry about the peak date is assumed\\
+"yesASN_yesATLAS.list" is made of observations that occur in asn and ATLAS data\\
+Of the 380 SN identified by asn, ATLAS data matches to 35 of the discovery dates exactly
+
+----
+Only 68 of 380 asn SN show up in ATLAS obs
+{{{
+sort -u -t' ' -k3,7 assasn.atlas.10days > sorted.txt
+# -u: print only unique lines
+# -t: specify delimiter
+# -k3,3: sort on third field
+
+ls | wc -l sorted.txt
+#>> 68
+
+# another way is to use awk
+awk '!a[$7]++' assasn.atlas.10days > sorted_awk.txt
+}}}
+
+----
+Of the 380 asn SN we matched 68\\
+For these, 627 ATLAS observations exist\\
+Of the 627 observations, 261 occur within the symmetric window surrounding the peak date
+ * disc_date = (asn observation mjd) - (discovery age) 
+ * disc_date - disc_age <= ATLAS_mjd <= disc_date + disc_age
+[Explain why some went unmatched]
+
+
+
+----
+= NEED TO RE-DO = 
+Re-Do the recent "quantify" section\\
+Rematch ASN data with ATLAS obs using modified shell script JT whipped up in newly created dir 
+{{{
+screen -r rematch
+cd ~/astr399/data/rematch
+}}}
+
+ * rematch.sh
+{{{
+# copy over full asn SN list
+  cp ../asn_data/sn_list_full.txt .
+
+  awk 'NR>1 {print $3}' sn_list_full.txt | tr . ' ' | awk '{d=$2/100; h=int(d*24); m=int((d*24-h)*60); s=int(((d*24-h)*60-m)*60); printf "%sT%02d:%02d:%02d\n", $1,h,m,s}' > rematch_assasn.date
+
+  date -u -f rematch_assasn.date +%s | awk '{printf "%10.4f\n", $1/86400+40587}' > rematch_assasn.mjd
+
+  awk 'NR>1{printf "%9.5f %9.5f %7.4f %6.1f %3d %s %s\n", $4,$5,$6,$7,$11,$2,$10}' sn_list_full.txt > rematch_assasn.tmp
+  paste -d ' ' rematch_assasn.mjd rematch_assasn.tmp > rematch_assasn.txt
+
+  if [[ ! -e all.good.log ]] ; then
+    cat /atlas/red/02a/5*/5*.log > rematch_02a.log
+  fi
+
+  cm 3,2,1 rematch_assasn.txt 12,11,2 rematch_02a.log -tol 3.8,d,50 > rematch_assasn.mch
+
+
+# try to match them all
+  cat rematch_assasn.mch | while read LINE ; do
+    mjd=$(echo $LINE | awk '{print $1}')
+    ra=$(echo $LINE | awk '{print $2}')
+    dec=$(echo $LINE | awk '{print $3}')
+    obs=$(echo $LINE | awk '{print $10}')
+    typ=$(echo $obs | awk '{print substr($1,9,1)}')
+    if [[ $typ != "o" ]] ; then continue ; fi
+    m=$(echo $obs | awk '{print substr($1,4,5)}')
+    if [[ ! -e /atlas/diff/02a/$m/$obs.ddt ]] ; then continue ; fi
+    xy=$(sky2pix /atlas/red/02a/$m/$obs.fits.fz $ra $dec)
+    match=$(echo $xy | cm 1,2 - 5,6 /atlas/diff/02a/$m/$obs.ddt -tol 4)
+    if [[ -z "$match" ]] ; then continue ; fi
+
+    echo $LINE $match | awk '{printf "%10.5f %8.4f %8.4f %7.4f %6.1f %3d %s %-12s %s %11.5f %8.4f %8.4f %5.2f %4.2f %7.1f %7.1f\n", $1,$2,$3,$4,$5,$6,$7,$8,$10,$11,$27,$28,$29,$30,$31,$32}'
+  done > rematch_assasn.atlas
+}}}
+I get 11806 for a 50 day window; and 3394 for a 15 day window
+
+
+{{{
+mv rematch_assasn.mch rematch_assasn.50d.mch
+
+# modify script to span 15 days rather than 50 and rerun
+chmod +x rematch.sh
+./rematch.sh
+}}}
+
+ * verify results are as expected
+{{{
+screen -r rematch
+
+ls | wc -l rematch_assasn.50d.mch
+#>> 11806
+ls | wc -l rematch_assasn.15d.mch
+#>> 3394
+
+ls | wc -l rematch_assasn.50d.atlas
+#>> 1822
+ls | wc -l rematch_assasn.15d.atlas
+#>> 883
+
+# verify $7 is the ID given by asn; then run:
+awk '!a[$7]++' rematch_assasn.50d.atlas > sorted.uniq.50d.txt
+awk '!a[$7]++' rematch_assasn.15d.atlas > sorted.uniq.15d.txt
+
+ls | wc -l sorted.uniq.50d.txt
+#>> 99
+ls | wc -l sorted.uniq.50d.txt
+#>> 99
+}}}
+I got 883 observations with 99 supernova\\
+JT get results of 883 observations of 214 supernovae\\
+ - emailed him - asking how he determined 214\\
+
+copy files down to local comp
+{{{
+rsync -avz -e ssh cmutnik@atlas-base-adm01.ifa.hawaii.edu:/home/cmutnik/astr399/data/rematch /Users/cmutnik/work/classes/ASTR399/data/
+}}}
+
+
+
+----
+=== 161011 ===
+ASN has added 5 new SN to their list.  Download the new list from [http://www.astronomy.ohio-state.edu/~assassin/sn_list.txt here]. Modify rematch.sh to use the [https://atlas.fallingstar.com/atlas/trac/attachment/wiki/StatTrans/sn_list_161011.txt newfile]
+{{{
+cd ~/work/classes/ASTR399/data/rematch
+cp rematch.sh rematch161011.sh
+# now modify "rematch161011.sh" s.t. it uses the new SN list "sn_list_161011.txt"
+
+rsync -avz -e ssh ~/work/classes/ASTR399/data/rematch cmutnik@atlas-base-adm01.ifa.hawaii.edu:~/astr399/data/
+
+# change permissions on local comp and server
+chmod +x rematch161011.sh
+}}}
+
+ * rematch161011.sh
+{{{
+  awk 'NR>1 {print $3}' sn_list_161011.txt | tr . ' ' | awk '{d=$2/100; h=int(d*24); m=int((d*24-h)*60); s=int(((d*24-h)*60-m)*60); printf "%sT%02d:%02d:%02d\n", $1,h,m,s}' > rematch_assasn.date
+
+  date -u -f rematch_assasn.date +%s | awk '{printf "%10.4f\n", $1/86400+40587}' > rematch_assasn.mjd
+
+  awk 'NR>1{printf "%9.5f %9.5f %7.4f %6.1f %3d %s %s\n", $4,$5,$6,$7,$11,$2,$10}' sn_list_161011.txt > rematch_assasn.tmp
+  paste -d ' ' rematch_assasn.mjd rematch_assasn.tmp > rematch_assasn.txt
+
+  if [[ ! -e all.good.log ]] ; then
+    cat /atlas/red/02a/5*/5*.log > rematch_02a.log
+  fi
+
+  cm 3,2,1 rematch_assasn.txt 12,11,2 rematch_02a.log -tol 3.8,d,50 > rematch_assasn.50d.161011.mch
+
+
+# try to match them all
+  cat rematch_assasn.50d.161011.mch | while read LINE ; do
+    mjd=$(echo $LINE | awk '{print $1}')
+    ra=$(echo $LINE | awk '{print $2}')
+    dec=$(echo $LINE | awk '{print $3}')
+    obs=$(echo $LINE | awk '{print $10}')
+    typ=$(echo $obs | awk '{print substr($1,9,1)}')
+    if [[ $typ != "o" ]] ; then continue ; fi
+    m=$(echo $obs | awk '{print substr($1,4,5)}')
+    if [[ ! -e /atlas/diff/02a/$m/$obs.ddt ]] ; then continue ; fi
+    xy=$(sky2pix /atlas/red/02a/$m/$obs.fits.fz $ra $dec)
+    match=$(echo $xy | cm 1,2 - 5,6 /atlas/diff/02a/$m/$obs.ddt -tol 4)
+    if [[ -z "$match" ]] ; then continue ; fi
+
+    echo $LINE $match | awk '{printf "%10.5f %8.4f %8.4f %7.4f %6.1f %3d %s %-12s %s %11.5f %8.4f %8.4f %5.2f %4.2f %7.1f %7.1f\n", $1,$2,$3,$4,$5,$6,$7,$8,$10,$11,$27,$28,$29,$30,$31,$32}'
+  done > rematch_assasn.50d.161011.atlas
+}}}
+
+all to check and see if these five new SN show up\\
+ASASSN-16lc\\
+ASASSN-16la\\
+ASASSN-16kz\\
+ASASSN-16kv\\
+ASASSN-16kw\\
+
+
+Check the length of each file and how many unique SN are matched
+{{{
+cd ~/astr399/data/rematch
+
+ls | wc -l rematch_assasn.50d.161011.mch #>> 11891
+ls | wc -l rematch_assasn.15d.161011.mch #>> 3394
+
+ls | wc -l rematch_assasn.50d.161011.atlas #>> 1848
+ls | wc -l rematch_assasn.15d.161011.atlas #>> 883
+
+# verify $7 is the ID given by asn; then run:
+awk '!a[$7]++' rematch_assasn.50d.161011.atlas > sorted.uniq.50d.161011.txt
+awk '!a[$7]++' rematch_assasn.15d.161011.atlas > sorted.uniq.15d.161011.txt
+
+# both should be 99+5=104
+ls | wc -l sorted.uniq.50d.161011.txt #>> 102
+ls | wc -l sorted.uniq.15d.161011.txt #>> 77
+}}}
+ * with a 50 day window
+  - 11891 matches
+  - 1848 observations of 102 supernovae.
+  - has 3 of the 5 new SN:
+   * ASASSN-16la
+   * ASASSN-16kz
+   * ASASSN-16kv
+  - It doesn't have the following new SN (2 of 5):
+   * ASASSN-16lc: Dec=-51.97049
+   * ASASSN-16kw: Dec=-41.68713
+ * with a 15 day window
+  - 3394 matches
+  - 883 observations of 77 supernovae
+  - has no new SN
+
+copy files down to local comp
+{{{
+rsync -avz -e ssh cmutnik@atlas-base-adm01.ifa.hawaii.edu:~/astr399/data/rematch ~/work/classes/ASTR399/data/
+}}}
+
+
+
+Sift through full SN list and ID those that went unmatched
+{{{
+cd work/classes/ASTR399/data/rematch
+
+# w/o header, print cols: ID, RA, Dec
+awk 'NR>1{print $2, $4, $5}' sn_list_161011.txt > sn_list_161011.foo
+
+# sort on third column (Dec)
+sort -g -t' ' -k3,3 sn_list_161011.foo > sorted.161011.foo
+  # -g: sorts using generic numerical value
+
+# sort using awk
+awk '!a[$3]++' sn_list_161011.foo > sorted_awk.161011.foo
+
+# sanity check - verify lists contain all 385 objs
+ls | wc -l sorted.161011.foo #>> 385
+ls | wc -l sorted_awk.161011.foo #>> 385
+}}}
+ * non-awk method gives deired results
+  - Dec is sorted in ascending order
+
+
+Use restrictions to pull rows that contain asn objects 
+which meet certain criteria. Compare these files to the 
+matched SN, to see which ones we shouldn't have been able to.
+{{{
+# Isolate ASN objects that fall below -30
+awk '$3<=-30{print $0}' sorted.161011.foo > below.-30.161011.list
+#awk '$3>-30{print $0}' sorted.161011.foo > above.-30.161011.list
+
+# Isolate ASN objects that were observed before ATLAS observations began
+awk '$1<57177{print $1, $2, $3, $7}' rematch_assasn.txt > below.atlas.mjd
+#awk '$1>=57177{print $1, $2, $3, $7}' rematch_assasn.txt > above.atlas.mjd
+
+# check how long the lists are
+ls | wc -l below.-30.161011.list #>> 100
+ls | wc -l below.atlas.mjd #>> 165
+}}}
+ * these are lists of objects we shouldn't see matched with atlas obs
+ * atlas observation dates
+  - /atlas/red/02a: 57177 - 57673
+  - /atlas/diff/02a: 57192 - 57673
+ * header of "below.-30.161011.list" [[Image(below.-30.161011.list,10%)]]
+ {{{
+ #ASN_ID RA Dec
+ }}}
+ * header of "below.atlas.mjd" [[Image(below.atlas.mjd,10%)]]
+ {{{
+ #MJD RA Dec ASN_ID
+ }}}
+
+Of the 385 asn SN:\\
+100 SN have a Dec lower than -30\\
+165 SN were observed by asn before ATLAS observations began.\\
+
+Make full list of asn objs that shouldnt show up in our data
+{{{
+awk '{print $1}' below.-30.161011.list > shouldnt.be.seen.list
+awk '{print $4}' below.atlas.mjd >> shouldnt.be.seen.list
+}}}
+
+Merge list we shouldn't see with the ones we matched to obs
+{{{
+awk '{print $0}' shouldnt.be.seen.list > whats.missing.list
+#awk '{print $7}' rematch_assasn.50d.161011.atlas >> whats.missing.list
+awk '{print $7}' sorted.uniq.50d.161011.txt >> whats.missing.list
+
+# sort the list in reverse order, while removing dublicates
+sort -u -r whats.missing.list > whats.missing.sorted.nodubs.list
+
+ls | wc -l whats.missing.list #>> 367
+ls | wc -l whats.missing.sorted.nodubs.list #>> 320
+}}}
+Need to identify 65 SN that are not accounted for. Once IDed 
+justify why they weren't seen
+
+
+sync files to server
+{{{
+rsync -avz -e ssh ~/work/classes/ASTR399/data/rematch cmutnik@atlas-base-adm01.ifa.hawaii.edu:~/astr399/data/
+}}}
+
+
+----
+Applying restrictions on observation dates allows for 
+determination of which matches fall within symmetrized 
+window.  That is to say, if asn observed something 
+5 days before its peak magnitude date we assume they would 
+also be able to observe the object for 5 days after its 
+peak date (symmetry about the peak date, not about the 
+date of discovery).
+
+ * yesno.py
+{{{
+#cd /Users/cmutnik/work/classes/ASTR399/matched
+
+mchfile = ascii.read('rematch_assasn.50d.161011.atlas')
+mchfile.colnames
+#>> ['col1','col2','col3','col4','col5','col6','col7','col8','col9','col10','col11','col12','col13','col14','col15','col16']
+disc_window = 0
+for k in range(len(mchfile)):
+  # subt disc_age from asn_mjd, to get the date at discovery
+  asn_mjd = int(mchfile['col1'][k])
+  disc_age = mchfile['col6'][k]
+  disc_date = asn_mjd - disc_age
+  atlas_mjd = int(mchfile['col10'][k])
+
+  disc_date_plus, disc_date_minus = disc_date + abs(disc_age), disc_date - abs(disc_age)
+  
+  if (disc_date_plus >= atlas_mjd) and (disc_date_minus <= atlas_mjd):
+    #print 'disc date mchs flooring'
+    disc_window += 1
+    print mchfile['col9'][k]
+print 'Number of ATLAS obs that match (asn SN discovery dates +/- discovery age): ', disc_window
+#>> Number of ATLAS obs that match (asn SN discovery dates +/- discovery age):  405
+}}}
+ * "yesASN_yesATLAS.161011.list" [[Image(yesASN_yesATLAS.161011.list,10%)]]
+ * "noASN_yesATLAS.161011.list" [[Image(noASN_yesATLAS.161011.list,10%)]]
+
+"yesASN_yesATLAS.161011.list" is a list of all the observations that asn 
+reported and atlas matched, within the specified window\\
+"noASN_yesATLAS.161011.list" is a list of atlas obs that fall outside 
+the asn symmetrized window...atlas obs that matched to asn data, but fell 
+outside the assumed window\\
+
+
+
+----
+=== 161012 ===
+
+Quick and dirty way of getting asn ID for the 65 supernova unaccounted for - 
+concatenate together two lists\\
+1. asn list of objects: "sn_list_161011.txt"\\
+2. list of objs that are accouted for by previously set restriction and 
+matched SN: "whats.missing.sorted.nodubs.list"
+{{{
+cd ~/work/classes/ASTR399/data/rematch
+mkdir remaining_SN
+cd remaining_SN
+
+# make file containing original 385 SN list and the ones already accounted for
+awk 'NR>1{print $2}' ../sn_list_161011.txt > orig.385.SN.and.320.accounted.for.list
+awk '{print $1}' ../whats.missing.sorted.nodubs.list >> orig.385.SN.and.320.accounted.for.list
+
+# file should be 385 + 320 = 705
+ls | wc -l orig.385.SN.and.320.accounted.for.list #>> 705
+
+# use uniq command to only print non-dubs
+uniq -u orig.385.SN.and.320.accounted.for.list > Remaining.SN.list.failed
+  # -u: Only output lines that are not repeated in the input.
+# FAILED
+rm Remaining.SN.list.failed
+
+# try using JTs sorting method...should result in expected 65
+awk '{print $1}' orig.385.SN.and.320.accounted.for.list | sort | uniq -u | wc #>> 65
+
+# JTs method works, so pipe results into a new file
+awk '{print $1}' orig.385.SN.and.320.accounted.for.list | sort | uniq -u > Remaining.SN.list
+}}}
+ * Remaining.SN.list: [[Image(Remaining.SN.list,10%)]]
+
+"Remaining.SN.list" contains the asn ID for all 65 supernova 
+that have a Declination above -30 and should exist in the ATLAS 
+observations; based on the discovery dates provided by asn.
+
+
+----
+ Histograms::
+
+Make figure directory and start a python strict to 
+generate the mjd histogram described above.
+{{{
+cd ~/work/classes/ASTR399
+mkdir figs
+cd figs/
+mkdir histo
+cd histo/
+mkdir compare
+}}}
+
+These histograms are for matched data
+ * mjd.histo.py
+{{{
+#!~/bin/python
+# Python script to make histogram of asn SN
+#  asn discovery MJD will be binned
+# Corey Mutnik - 161012
+
+import matplotlib.pyplot as plt
+from astropy.io import ascii
+from matplotlib import cm
+import numpy as np
+
+dfile=ascii.read('../../data/rematch/rematch_assasn.50d.161011.atlas')
+mjd_asn=dfile['col1']
+step = 10
+
+###
+# ASN matches
+###
+s = np.array(mjd_asn)
+xmin = int( np.min(mjd_asn) )
+xmax = int( np.max(mjd_asn) ) + 1 # add one to raise the floored value
+y, x = np.histogram(s, bins=np.linspace(xmin, xmax, (xmax-xmin)/step))
+nbins = y.size
+
+###
+# ATLAS matches
+###
+s_atlas_mjd = np.array( np.floor(dfile['col10']) ) 
+#xmin_at = int( np.min(s_atlas_mjd) )
+#xmax_at = int( np.max(s_atlas_mjd) ) + 1 # add one to raise the floored value
+y_at, x_at = np.histogram(s_atlas_mjd, bins=np.linspace(xmin, xmax, (xmax-xmin)/step))
+nbins_at = y_at.size
+
+###
+# Plot histogram
+###
+plt.clf()
+plt.xlabel('MJD')
+plt.ylabel('Number of SN')
+
+# plot matched asn mjd
+plt.bar(x[:-1], y, width=x[1]-x[0], color='red', alpha=0.5, label='ASN matched')
+
+# plot matched atlas mjd
+plt.bar(x_at[:-1], y_at, width=x_at[1]-x_at[0], color='blue', alpha=0.5, label='ATLAS matched')
+
+plt.legend()
+plt.savefig('histo.mjd.step'+str(step)+'.png')
+}}}
+[[Image(histo.mjd.step10.png,20%)]]
+
+Loop to make a bunchaplots with different step sizes, for comparision
+{{{
+for k in range(15,50):
+  step = k
+  y, x = np.histogram(s, bins=np.linspace(xmin, xmax, (xmax-xmin)/step))
+  nbins = y.size
+
+  y_at, x_at = np.histogram(s_atlas_mjd, bins=np.linspace(xmin, xmax, (xmax-xmin)/step))
+  nbins_at = y_at.size
+
+  plt.clf()
+  plt.xlabel('MJD')
+  plt.ylabel('Number of SN')
+  plt.bar(x[:-1], y, width=x[1]-x[0], color='red', alpha=0.5, label='ASN matched')
+  plt.bar(x_at[:-1], y_at, width=x_at[1]-x_at[0], color='blue', alpha=0.5, label='ATLAS matched')
+
+  plt.legend()
+  plt.savefig('compare/histo.mjd.step'+str(k)+'.png')
+  print 'finished: ', k-14, '/', 50-15
+}}}
+ * far left plot has step size of 10
+ * center plot has step size of 20
+ * far right plot has step size of 22
+[[Image(histo.mjd.step10.png,20%)]]
+[[Image(histo.mjd.step20.png,20%)]]
+[[Image(histo.mjd.step22.png,20%)]]\\
+[[Image(histo.mjd.step10.2.png,20%)]]
+[[Image(histo.mjd.step20.2.png,20%)]]
+[[Image(histo.mjd.step22.2.png,20%)]]\\
+For these plots:\\
+fix x tics\\
+fix y tics\\
+adjust alignment of LHS\\
+
+
+Python script to make histogram of asn SN...
+expected asn SN observations will be binned, 
+assuming observational symmetry about the peak date.
+ * symmetric.window.histo.py
+{{{
+#!~/bin/python
+# Python script to make histogram of asn SN
+#  asn discovery MJD will be binned, assuming 
+#  observational symmetry about the peak date
+# Corey Mutnik - 161012
+
+import matplotlib.pyplot as plt
+from astropy.io import ascii
+from matplotlib import cm
+import numpy as np
+
+dfile=ascii.read('../../data/rematch/rematch_assasn.50d.161011.atlas')
+mjd_asn=dfile['col1']
+
+###
+# Assuming Symmetry about the peak mag date
+###
+'''
+# NO GOOD...flooring works like int but cant be looped through
+asn_mjd = floor(dfile['col1'])
+disc_age = dfile['col6']
+sym_mjd = []
+for age_step in range(len(disc_age)):
+  date_step = 
+  sym_mjd.append(date_step)
+'''
+
+###
+# tested using fake dataset, in foo.py
+###
+# guess the number of mjd we expect to end with
+n_expected_mjd = sum( abs(dfile['col6'])*2 + 1 )
+#expected_sym_mjd,disc_window = 0,0
+print "the number of mjd we expect to end with: ", n_expected_mjd
+
+n0, sym_mjd = 0, [] # initialize
+for k in range(len(dfile)):
+  # subt disc_age from asn_mjd, to get the date at discovery
+  asn_mjd = int(dfile['col1'][k])
+  disc_age = dfile['col6'][k]
+  disc_date = asn_mjd - disc_age
+
+  if disc_age != 0:
+    for j in range(1, abs(disc_age)+1):
+      '''This loop should make a list of 
+      assumed asn observations...do not go from
+      zero, or the peak date will be added twice, 
+      put that outside the loop'''
+      step_up, step_down = disc_date+j, disc_date-j 
+      
+      # append dates to list
+      sym_mjd.append(step_down)
+      sym_mjd.append(step_up)
+  else:
+    n0 += 1
+  
+  # keeping this outside the if statement allows for this line to append 2 cases:
+  #   1. obs with disc_age == 0
+  #   2. peak dates for obs_age != 0
+  sym_mjd.append(disc_date)
+
+  # another way to guess the number of mjd we expect to end with
+  #expected_sym_mjd += abs(disc_age)*2 + 1
+print 'number of SN with disc age of 0: ', n0, '\nnumber of mjd we actually ended with: ', len(sym_mjd)
+
+###
+# Bin data for histogram
+###
+s = np.array(sym_mjd)
+
+xmin = int( np.min(sym_mjd) )
+xmax = int( np.max(sym_mjd) ) + 1 # add one to raise the floored value
+step = 10
+y, x = np.histogram(s, bins=np.linspace(xmin, xmax, (xmax-xmin)/step))
+nbins = y.size
+
+# Plot histogram
+plt.clf()
+plt.xlabel('MJD')
+plt.title('Assuming Observational Symmetry')
+plt.ylabel('Number of Assumed SN Observations')
+plt.bar(x[:-1], y, width=x[1]-x[0], color='red', alpha=0.5)
+plt.savefig('assumed.histo.mjd.step'+str(step)+'.png')
+}}}
+ * far left plot has step size of 10
+ * center plot has step size of 20
+ * far right plot has step size of 22
+[[Image(assumed.histo.mjd.step10.png,20%)]]
+[[Image(assumed.histo.mjd.step20.png,20%)]]
+[[Image(assumed.histo.mjd.step22.png,20%)]]\\
+For these plots:\\
+fix x tics\\
+fix y tics\\
+adjust alignment of LHS\\
+
+----
+
+Remake for the histograms...need to convert asn dates to mjd for all 385 SN
+{{{
+screen -r rematch
+
+  awk 'NR>1 {print $3}' sn_list_161011.txt | tr . ' ' | awk '{d=$2/100; h=int(d*24); m=int((d*24-h)*60); s=int(((d*24-h)*60-m)*60); printf "%sT%02d:%02d:%02d\n", $1,h,m,s}' > rematch_assasn.date
+
+  date -u -f rematch_assasn.date +%s | awk '{printf "%10.4f\n", $1/86400+40587}' > rematch_assasn.mjd
+
+  awk 'NR>1{printf "%9.5f %9.5f %7.4f %6.1f %3d %s %s\n", $4,$5,$6,$7,$11,$2,$10}' sn_list_161011.txt > rematch_assasn.tmp
+  paste -d ' ' rematch_assasn.mjd rematch_assasn.tmp > rematch_assasn.full385.txt
+}}}
+
+sync down to comp
+{{{
+rsync -avz -e ssh cmutnik@atlas-base-adm01.ifa.hawaii.edu:/home/cmutnik/astr399/data/rematch/* ~/work/classes/ASTR399/data/rematch
+}}}
+
+Now use "rematch_assasn.161011.txt" to plot the full ASN observation MJD's...
+Modify the python scripts above to include the following lines, using the full 
+asn SN data to determine the x-limits.
+{{{
+all_asn = ascii.read('../../data/rematch/rematch_assasn.full385.txt')
+full_mjd = all_asn['col1']
+step = 25
+xmin = int( np.min(full_mjd) )
+xmax = int( np.max(full_mjd) ) + 1 # add one to raise the floored value
+s_full = np.array(full_mjd)
+y_full, x_full = np.histogram(s_full, bins=np.linspace(xmin, xmax, (xmax-xmin)/step))
+nbins_full = y_full.size
+plt.bar(x_full[:-1], y_full, width=x_full[1]-x_full[0], color='green', alpha=0.5, label='all ASN')
+}}}
+[[Image(fullASN.histo.mjd.step25.png,20%)]]
+[[Image(ecolor.fullASN.histo.mjd.step20.png,20%)]]
+
+
+----
+rematch_assasn.50d.161011.mch is asn data matched 
+to logs files from /atlas/red dir\\
+rematch_assasn.50d.161011.atlas is asn data matched 
+to logs files then matched to ddt files from /atlas/diff\\
+
+See which SN we lose when going from log to ddt matches
+
+{{{
+cd ~/work/classes/ASTR399/data/rematch
+
+# make a file with the list of SN matched to atlas log files
+awk '{print $7}' rematch_assasn.50d.161011.mch > log.ddt.missing.sn.list
+
+# append SN list after cm with ddt file
+awk '{print $7}' rematch_assasn.50d.161011.atlas >> log.ddt.missing.sn.list
+
+ls | wc -l log.ddt.missing.sn.list #>> 13739
+
+# sort and count only the unique SN, no dubs
+awk '{print $1}' log.ddt.missing.sn.list | sort | uniq -u | wc #>> 4
+
+# print unique files to sep list
+awk '{print $1}' log.ddt.missing.sn.list | sort | uniq -u > remaining_SN/SN.lost.between.ddt.log
+}}}
+These four SN were lost between cm'ing asn data with 
+atlas red logs and cm'ing again with atlas diff ddts\\
+ASASSN-15lo\\
+ASASSN-15oz\\
+ASASSN-16bv\\
+ASASSN-16fh\\
+
+Two of these 4 SN show up in the list of 65 missing SN: "Remaining.SN.list"\\
+ASASSN-15lo\\
+ASASSN-16fh\\
+
+The following 2 SN aren't in the remaining SN list\\
+ASASSN-15oz\\
+ASASSN-16bv\\
+
+Make a new list of all 67 unaccounted for SN
+ * All.remaining.SN.list [[Image(All.remaining.SN.list,10%)]]
+{{{
+cd ~/work/classes/ASTR399/data/rematch/remaining_SN
+
+awk '{print $0}' Remaining.SN.list > All.remaining.SN.list
+
+# append 2 SN that were lost between atlas log and ddt files
+echo ASASSN-16bv >> All.remaining.SN.list
+echo ASASSN-15oz >> All.remaining.SN.list
+
+# sanity check (should be 67)
+ls | wc -l All.remaining.SN.list #>> 67
+
+# and sort the list
+sort -r All.remaining.SN.list > tmp.foo
+mv tmp.foo All.remaining.SN.list
+}}}
+
+
+----
+Ari increased skyscout to accept a maximum of 500000 images.  
+Now rerun skyscout using the new searchlist:  
+"searchlist.with.paths.txt"...Once complete, compare results 
+to those generated by original searchlist: "searchlist.txt"
+
+{{{
+screen -r skyscout
+cd /home/cmutnik/astr399/data/skyscout/testC_with_paths
+
+skyscout02 ../searchlist.with.paths.txt ASASSN-16ke_ephem.txt 3.5 150 3 ASASSNtestC_paths ASASSNtestC_paths.txt
+}}}
+ * returned ERROR:
+ {{{
+ Your object appears to be on 135 images
+ preparing to read image called /atlas/red/02a/57275/02a57275o0007c.fits.fz[image]
+
+ FITSIO status = 850984608: unknown error status
+ }}}
+
+
+
+----
+=== 161013 ===
+Ari has fixed the skyscout issue - try rerunning attempt from yesterday
+{{{
+screen -r skyscout
+cd /home/cmutnik/astr399/data/skyscout/testC_with_paths
+
+skyscout02 ../searchlist.with.paths.txt ASASSN-16ke_ephem.txt 3.5 150 3 ASASSNtestC_paths ASASSNtestC_paths.txt
+}}}
+It seems to be working well...I'll check in on that in a little
+
+Modify the shell script to create a searchlist from the ddt files in the diff dir
+{{{
+screen -r ddt_skyscout
+
+scp searchlist.with.paths.sh ddt.searchlist.sh
+}}}
+After a copy is made, alter its contents s.t. 
+the new file makes a searchlist from the differenced 
+images...just change the dir path in the loop
+
+ * #ddt.searchlist.sh
+{{{
+  zpthresh=21.0
+  for obs in /atlas/diff/02a/*/*.ddt ; do
+    pstring=$(fitshdr $obs -v MJD-OBS RA DEC MAGZPT)
+    zp=$(fitshdr $obs -v MAGZPT)
+    if [[ $zp > $zpthresh ]] ; then
+    printf "%s %s\n" "$obs" "$pstring" 
+    fi
+  done > diff.searchlist.txt
+}}}
+ * FAILS - no fits header
+ {{{
+  rm ddt.searchlist.sh
+ }}}
+
+once this has finished, be sure to notify Ari and 
+place a copy in the SN dir he made
+ {{{
+ scp diff.searchlist.txt /atlas/red/02a/Supernovae/.
+ }}}
+
+
+Failed because *.ddt files aren't fits format, 
+therefore you can't invoke the command 'fitshdr'
+...rather, we need some other method of 
+retrieving the desired data...try using awk 
+(kida a one-trick pony with this guy)
+{{{
+# copy over a random ddt file
+cp /atlas/diff/02a/57549/02a57549o0461c.ddt ~/astr399/
+
+# in fits file we have "MJD-OBS RA DEC MAGZPT" 
+# in the header...need to find the cooresponding 
+# data in the ddt file
+
+awk '{print $NF}' 02a57549o0461c.ddt | head -5
+#>> 3
+
+awk '{print $2}' 02a57549o0461c.ddt | head -3
+#>> OBS=
+#>> OBJ=
+#>> FILT=
+
+awk '$2=="RA="{print $3}' 02a57549o0461c.ddt
+#>> 311.96744
+
+# found it, now make variable out of them
+  zpthresh=21.0
+  
+    mjd_obs=$(awk '$2=="MJD="{print $3}' 02a57549o0461c.ddt)
+    ra=$(awk '$2=="RA="{print $3}' 02a57549o0461c.ddt)
+    dec=$(awk '$2=="DEC="{print $3}' 02a57549o0461c.ddt)
+    zp=$(awk '$2=="MAGZPT="{print $3}' 02a57549o0461c.ddt)
+
+    # dont forget the obs id, or this was all kinda moot
+    obs_id=$(awk '$2=="OBS="{print $3}' 02a57549o0461c.ddt)
+    
+    if [[ $zp > $zpthresh ]] ; then
+        printf "%s %s %s %s %s\n" "$obs_id" "$mjd_obs" "$ra" "$dec" "$zp" 
+    fi
+}}}
+Sweet deal, it works; it even prints nicely before the line break. 
+Now, genralize it and add the filename in the front
+
+ * no.path.ddt.sh
+{{{
+  zpthresh=21.0
+  for obs in /atlas/diff/02a/*/*.ddt ; do
+    mjd_obs=$(echo $LINE | awk '$2=="MJD="{print $3}' $obs)
+    ra=$(echo $LINE | awk '$2=="RA="{print $3}' $obs)
+    dec=$(echo $LINE | awk '$2=="DEC="{print $3}' $obs)
+    zp=$(echo $LINE | awk '$2=="MAGZPT="{print $3}' $obs)
+    obs_id=$(echo $LINE | awk '$2=="OBS="{print $3}' $obs)
+
+    if [[ $zp > $zpthresh ]] ; then
+      printf "%s %s %s %s %s\n" "$obs_id" "$mjd_obs" "$ra" "$dec" "$zp" 
+    fi
+  done
+}}}
+
+So, this script pulls all the data we wanted from the ddt files, 
+but it fails to include the path...most likely due to the way 
+we have $obs_id defined...we want $obs not $obs_id...give it a 
+shot (change the if statements printout)
+{{{
+    if [[ $zp > $zpthresh ]] ; then
+      printf "%s %s %s %s %s\n" "$obs" "$mjd_obs" "$ra" "$dec" "$zp" 
+    fi
+}}}
+
+
+Bingo was his name-o...just bundle that into a shell 
+scipt, give it an output file, and run it 
+in {{{screen -r ddt_skyscout}}}
+
+ * ddt.searchlist.sh
+{{{
+  zpthresh=21.0
+  for obs in /atlas/diff/02a/*/*.ddt ; do
+    mjd_obs=$(echo $LINE | awk '$2=="MJD="{print $3}' $obs)
+    ra=$(echo $LINE | awk '$2=="RA="{print $3}' $obs)
+    dec=$(echo $LINE | awk '$2=="DEC="{print $3}' $obs)
+    zp=$(echo $LINE | awk '$2=="MAGZPT="{print $3}' $obs)
+    obs_id=$(echo $LINE | awk '$2=="OBS="{print $3}' $obs)
+
+    if [[ $zp > $zpthresh ]] ; then
+      printf "%s %s %s %s %s\n" "$obs" "$mjd_obs" "$ra" "$dec" "$zp" 
+    fi
+  done > diff.searchlist.txt
+}}}
+
+
+
+Rerun of skyscout02 over *testC* finished running...copy the first 
+runs images into a sep dir for comparison
+{{{
+rsync -avz /atlas/red/02a/Supernovae/*testC* /home/cmutnik/astr399/data/skyscout/testC/
+}}}
+Oh, right - I already did that\\
+The initial run, over testC, resulted in 5 stamps being pulled\\
+Using the searchlist with paths resulted in 135 stamps\\
+Hopefully, further comparison will show the extra 130 stamps are useful, 
+not just images taken before any SN was there. Sync to local comp and 
+sort through the images using Ari's DS9 method (there has to be a 
+better way, DS9...really?)
+
+For now, DS9 did the trick...can you spot the SN?...ignore that rogue green 
+circle, it shouldn't be there\\
+[[Image(C.paths.tiled1.png,20%)]]
+[[Image(C.paths.tiled2.png,20%)]]\\
+
+Didn't Ari's mention some script he wrote that generates an 
+animation? I'm gonna follow up on that with an email cuz, 
+having that bink away with the difference images spiced in 
+would be very adventageous
+
+
+
+----
+internal note on ddt searchlist status:\\
+{{{
+cd /home/cmutnik/astr399/data/skyscout
+ls | wc -l *.txt
+#>> 5493 diff.searchlist.txt
+#>> 166135 searchlist.with.paths.txt
+
+# it is 2048 on 161013
+}}}
+ * kinda seems like a long time
+ * maybe break and see how far it got
+ * rerun while piping to less, to watch the output
+
+It is now 2210 and the file size has not changed...use a 
+keyboard break to stop it and check out the where it got caught\\
+Nothing seems to be wrong with it or the file it wrote last or 
+the one after it
+{{{
+# final line written
+tail -1 diff.searchlist.txt
+#>> /atlas/diff/02a/57364/02a57364o0082o.ddt 57364.221956 300.47446 37.41165 21.360
+
+less /atlas/diff/02a/57364/02a57364o0082o.ddt
+}}}
+
+Not sure what happened, rm old file and try restarting
+{{{
+rm diff.searchlist.txt
+./ddt.searchlist.sh
+}}}
+started at 2218 on 161013\\
+checked at 2336 on 161013 {{{ls | wc -l *.txt #>> 45513}}}\\
+
+It looks good, but if it gets stuck again - make a list of all ddt files and use a while 
+loop to go through them
+
+
+----
+ ASASSN-15oz::
+Now that we have established that this routine works...lets ramp it up and 
+go after one of those SN we lost between cm'ing asn data with ATLAS 
+logs and ddt files. "ASASSN-15oz" is one of these four and didn't show up 
+on the remaining list. Pull its info from the original asn data, after 
+converting the discovery date to mjd...this information is stored in 
+"rematch_assasn.full385.txt".  With a declination below -30, we shouldn't 
+expect to have observed this guy. Never-the-less, stamp it up
+{{{
+# ASASSN-15oz
+# 57265.0900 289.88977 -33.76706  0.0069   14.6   2 ASASSN-15oz II
+
+# make its own directory, to store the imgs in
+cd ~/astr399/data/skyscout/
+mkdir ASASSN-15oz
+cd ASASSN-15oz
+}}}
+Next we need an ephem file\\
+ * ASASSN-15oz.ephem.txt
+ {{{
+ 55000 289.88977 -33.76706
+ 58000 289.88977 -33.76706
+ }}}
+Now run skyscout on 
+{{{
+# run it in screen so I dont need to stay logged in
+screen -r 15oz
+cd ~/astr399/data/skyscout/ASASSN-15oz
+skyscout02 ../searchlist.with.paths.txt ASASSN-15oz.ephem.txt 3.5 150 3 ASASSN-15oz ASASSN-15oz.txt
+}}}
+This retrieved 41 stamps...pull them down to local comp for analysis\\
+[[Image(ASASSN-15oz_tiled.png,20%)]]\\
+It looks as if the SN shows up in the first few images, but I am not 100% 
+convinced what I have enclosed is a SN...ds9 setting need to be adjusted, 
+fingers crossed - it will be evident in the difference images.
+
+
+ ASASSN-16bv::
+The second SN lost between these two cm'ings is "ASASSN-16bv". It also failed 
+to show up on the remaining list with a declination below -41, this SN falls 
+below are expected -30 limit.
+{{{
+# ASASSN-16bv
+# 57434.0400  26.07021 -41.89361  0.0290   16.5  -8 ASASSN-16bv Ia-91T
+
+screen -r 16bv
+cd ~/astr399/data/skyscout/
+mkdir ASASSN-16bv
+cd ASASSN-16bv
+
+skyscout02 ../searchlist.with.paths.txt ASASSN-16bv.ephem.txt 3.5 150 3 ASASSN-16bv ASASSN-16bv.txt
+}}}
+ * ASASSN-16bv.ephem.txt
+ {{{
+ 55000 26.07021 -41.89361
+ 58000 26.07021 -41.89361
+ }}}
+Output 7 images\\
+[[Image(ASASSN-16bv_tiled.png,20%)]]\\
+Are the coordinates that far off? That is the only difference I can discern 
+between these images.
+
+
+ ASASSN-15lo::
+another one of the four SN lost between cm'ing with logs and 
+ddt file, but it did show up on the remining list...it is a type Ia and was 
+discovered right on the cusp of when ATLAS started recording differnence data.
+{{{
+# ASASSN-15lo
+# 57192.5200 343.39121  19.70844  0.0400   16.7  10 ASASSN-15lo Ia
+
+screen -r 15lo
+cd ~/astr399/data/skyscout/ASASSN-15lo
+skyscout02 ../searchlist.with.paths.txt ASASSN-15lo.ephem.txt 3.5 150 3 ASASSN-15lo ASASSN-15lo.txt
+}}}
+ * ASASSN-15lo.ephem.txt
+ {{{
+ 55000 343.39121  19.70844
+ 58000 343.39121  19.70844
+ }}}
+Output 115 images\\
+[[Image(ASASSN-15lo_tiled1.png,20%)]]
+[[Image(ASASSN-15lo_tiled2.png,20%)]]\\
+I don't see it
+
+
+ ASASSN-16fh::
+"ASASSN-16fh" is the final SN, it showed up on the remaining list but has an 
+unknown spectral type and declination of ~-27, which is pretty low...closing 
+in on our limit of -30.
+{{{
+# ASASSN-16fh
+# 57523.4200   0.52335 -26.98009  0.0335   16.3   0 ASASSN-16fh Unk
+
+screen -r 16fh
+cd ~/astr399/data/skyscout/ASASSN-16fh
+skyscout02 ../searchlist.with.paths.txt ASASSN-16fh.ephem.txt 3.5 150 3 ASASSN-16fh ASASSN-16fh.txt
+}}}
+ * ASASSN-16fh.ephem.txt
+ {{{
+ 55000 0.52335 -26.98009
+ 58000 0.52335 -26.98009
+ }}}
+Output 106 images\\
+[[Image(ASASSN-16fh_tiled.png,20%)]]\\
+I don't see it again
+
+** Verify Unk means unknown **
+
+----
+Now that those four are complete - run skyscout on an object that never 
+matched. To do this, pull one from the remaining list...preferably 
+choose a SN with dec above -30.
+{{{
+cd /Users/cmutnik/work/classes/ASTR399/data/rematch/remaining_SN
+less All.remaining.SN.list
+# choose any SN
+#>> ASASSN-16je
+
+# Once a SN is selected, pull its corresponding information
+cd ~/work/classes/ASTR399/data/rematch
+less rematch_assasn.full385.txt
+#>> 57621.3300 256.45255  69.84832  0.0000   16.9   0 ASASSN-16je Ia
+}}}
+
+ ASASSN-16je::
+The discovery and observations of this SN are within our obs mjd window, 
+it has the correct classification type (Ia), and has a dec above -30...Use 
+this information to make an ephem file
+ * ASASSN-16je.ephem.txt
+ {{{
+ 55000 256.45255 69.84832
+ 58000 256.45255 69.84832
+ }}}
+
+Now run skyscout02 over the reduced observations
+{{{
+screen -r 16je
+cd ~/astr399/data/skyscout
+mkdir ASASSN-16je
+cd ASASSN-16je
+skyscout02 ../searchlist.with.paths.txt ASASSN-16je.ephem.txt 3.5 150 3 ASASSN-16je ASASSN-16je.txt
+}}}
+Output 107 images\\
+[[Image(ASASSN-16je_tiled.png,20%)]]\\
+Hard to make out, but I'm pretty sure I got it
+
+
+ ASASSN-15sb::
+Go ahead and run skyscout over a couple SN
+that matched to both the logs and ddt
+{{{
+cd ~/work/classes/ASTR399/data/rematch
+less rematch_assasn.50d.atlas
+#>> 57318.34000  90.2004 -15.3992  0.0227   16.7   0 ASASSN-15sb Ia           02a57358o0500o 57358.48269 -15.3997  14.8700  0.02 3434.00  2254.4  1218.0
+}}}
+There are two matches in the file "rematch_assasn.50d.atlas"...lets 
+see how many stamps skyscout is able to collect
+ * ASASSN-15sb.ephem.txt
+ {{{
+ 55000 90.2004 -15.3992
+ 58000 90.2004 -15.3992
+ }}}
+Run skyscout
+{{{
+screen -r 15sb
+cd ~/astr399/data/skyscout
+mkdir ASASSN-15sb
+cd ASASSN-15sb
+skyscout02 ../searchlist.with.paths.txt ASASSN-15sb.ephem.txt 3.5 150 3 ASASSN-15sb ASASSN-15sb.txt
+}}}
+Output 160 images\\
+[[Image(ASASSN-15sb_tiled.png,20%)]]\\
+I can't find them and am growing tired for once, so ill just post 
+the pics and look later...it'll be easier with the diff images
+
+
+ ASASSN-16gf::
+What the hell, lets also look at a SN with a lot 
+of matches in "rematch_assasn.50d.atlas" - just 
+to see how it compares with the one above that only 
+had two matches
+{{{# 57544.45000 220.4442  19.2519  0.0306   17.5   0 ASASSN-16gf Ia}}}
+ * ASASSN-16gf.ephem.txt
+ {{{
+ 55000 220.4442  19.2519
+ 58000 220.4442  19.2519
+ }}}
+Run skyscout
+{{{
+screen -r 16gf
+cd ~/astr399/data/skyscout
+mkdir ASASSN-16gf
+cd ASASSN-16gf
+skyscout02 ../searchlist.with.paths.txt ASASSN-16gf.ephem.txt 3.5 150 3 ASASSN-16gf ASASSN-16gf.txt
+}}}
+Output 172 images\\
+[[Image(ASASSN-16gf_tiled.png,20%)]]\\
+
+
+----
+=== 161014 ===
+ * Update on ddt searchlist:\\
+  - at 0041 on 161014
+  {{{ls | wc -l #>> 86557}}}
+   * still going with no signs of any issues
+ * Look at the SN tiles from yesterday, again later
+  - try to locate SN again
+  - use diff images to locate it easier  
+
+Do away with "All.remaining.SN.list" and revert to using "Remaining.SN.list" again, 
+the two SN added to make "All.remaining.SN.list" have declinations below -30; 
+therefore, they do not belong of the remaining list.  There are only 65 SN that 
+need explanations for why they didn't match.
+
+
+----
+Merge the remaining list with the asn list containing 
+the original data and date converted to mjd...then, 
+look for trends as to what may be the isolating / 
+defining characteristic(s) that caused these 65 remaining 
+SN not to be matched.
+{{{
+cd ~/work/classes/ASTR399/data/rematch
+
+# match col1 with col7 of respective files, only printing results from file2
+#cm 1 remaining_SN/Remaining.SN.list 7 rematch_assasn.full385.txt -not 1
+# not what I wanted
+# its getting late...do this clunky way that works
+
+cm 1 remaining_SN/Remaining.SN.list 7 rematch_assasn.full385.txt > tmp.foo
+awk -F"|" '{print $2}' tmp.foo | wc
+#>> 65
+
+# now write it to a file and remove tmp.foo
+awk -F"|" '{print $2}' tmp.foo > remaining_SN/fullDat.Remaining.SN.list
+rm tmp.foo
+}}}
+"fullDat.Remaining.SN.list" [[Image(fullDat.Remaining.SN.list,10%)]]\\
+this file has all the original 
+asn data for the unmatched 65 SN, with discovery 
+date converted to mjd...now ** look through the 
+data and find isolating trends **
+
+
+----
+at 0300 on 161014 the ddt searchlist finally finishes
+{{{
+screen -r ddt_skyscout
+cd ~/astr399/data/skyscout
+ls | wc -l *.txt
+#>> 137982 diff.searchlist.txt
+#>> 166135 searchlist.with.paths.txt
+}}}
+ * the diff img searchfile file is almost as long as the red img searchfile
+
+I copied over the diff img searchlist for skyscout 
+and its generating shell script.  This search list 
+has all the paths for all the ddt files in /atlas/diff/02a/*
+{{{
+scp diff.searchlist.txt /atlas/red/02a/Supernovae/.
+scp ddt.searchlist.sh /atlas/red/02a/Supernovae/.
+}}}
+I have also emailed Ari, telling him the ddt searchlist is 
+complete, also, to inform him I have begun using skyscout 
+with the ddt searchlist...fingers crossed it works - since 
+I didn't write skyscout and ddt files aren't in fits format 
+I'm not sure the program will be compatible with these files. 
+I guess we'll see.
+{{{
+screen -r ddt_skyscout
+
+cd ~/astr399/data/skyscout/ASASSN-15oz
+skyscout02 ../diff.searchlist.txt ASASSN-15oz.ephem.txt 3.5 150 3 diff_ASASSN-15oz diff_ASASSN-15oz.txt
+}}}
+
+
+----
+It's kind of tedious to do this one at a time, it needs 
+to be done more serially / recursively...make a script 
+that loops through all the remaining SN then one that 
+loops through all the matched SN...be sure to keep an 
+eye on how long these routines take, hopefully the server 
+will be less used over the weekend
+{{{
+screen -r remain
+cd ~/astr399/data/skyscout
+mkdir remaining.SN.stamps
+cd remaining.SN.stamps
+chmod +x pull.stamps.4.remaining.SN.sh
+./pull.stamps.4.remaining.SN.sh
+}}}
+ * began running at 1555 on 161014
+Where "pull.stamps.4.remaining.SN.sh" is a script to generate 
+dirs for each SN that did not match to our obs, then in those 
+dirs generate an ephem file and pull stamps for both reduced 
+and difference images
+ * pull.stamps.4.remaining.SN.sh
+{{{
+#!/bin/bash
+# pull red img and diff img stamps for each 
+# SN in the list that failed to match
+# Corey Mutnik 161014
+
+res1=$(date +%s.%N) # to calculate CPU time
+
+cat ~/astr399/data/rematch/remaining_SN/fullDat.Remaining.SN.list | while read LINE ; do
+    asn_id=$(echo $LINE | awk '{print $7}')
+    mkdir $asn_id
+    cd $asn_id
+    ra=$(echo $LINE | awk '{print $2}')
+    dec=$(echo $LINE | awk '{print $3}')
+    echo "55000" $ra $dec > $asn_id.ephem.txt
+    echo "58000" $ra $dec >> $asn_id.ephem.txt
+    skyscout02 ../../diff.searchlist.txt $asn_id.ephem.txt 3.5 150 3 diff_$asn_id diff_$asn_id.txt
+    echo "finished pulling ddt stamps for" $asn_id
+    skyscout02 ../../searchlist.with.paths.txt $asn_id.ephem.txt 3.5 150 3 $asn_id $asn_id.txt
+    echo "finished pulling all stamps for" $asn_id
+    cd ../
+
+      # to calculate CPU time
+      res3=$(date +%s.%N)
+      dt=$(echo "$res3 - $res1" | bc)
+      ddd=$(echo "$dt/86400" | bc)
+      dt2=$(echo "$dt-86400*$ddd" | bc)
+      dh=$(echo "$dt2/3600" | bc)
+      dt3=$(echo "$dt2-3600*$dh" | bc)
+      dm=$(echo "$dt3/60" | bc)
+      ds=$(echo "$dt3-60*$dm" | bc)
+      printf "Total runtime of $asn_id (days:hr:min:s): %d:%02d:%02d:%02.4f\n" $ddd $dh $dm $ds
+done
+
+# to calculate CPU time
+res2=$(date +%s.%N)
+dt=$(echo "$res2 - $res1" | bc)
+ddd=$(echo "$dt/86400" | bc)
+dt2=$(echo "$dt-86400*$ddd" | bc)
+dh=$(echo "$dt2/3600" | bc)
+dt3=$(echo "$dt2-3600*$dh" | bc)
+dm=$(echo "$dt3/60" | bc)
+ds=$(echo "$dt3-60*$dm" | bc)
+
+printf "Total runtime of full script (days:hr:min:s): %d:%02d:%02d:%02.4f\n" $ddd $dh $dm $ds
+}}}
+
+ ** KEEP AN EYE ON CPU TIME **
+
+
+----
+=== 161017 ===
+Reduced images do not make it easy to see SN.  To make it 
+easier, look at difference images.  This is done by running 
+skyscout over ddt files.
+ * Error message when trying to run skyscout with ddt files
+{{{
+ffopen could not interpret primary array header of file:
+/atlas/diff/02a/57511/02a57511o0663c.ddt[image]
+This does not look like a FITS file.
+}}}
+
+
+----
+In the remaining dir, pull all the fits files used to 
+tile the pulled stamps
+{{{
+cd ~/astr399/data/skyscout/remaining.SN.stamps
+mkdir tile_stamps
+
+# copy over only tiled fits files
+scp */*_tile.fits tile_stamps/.
+}}}
+Pull this 3.5G dir down to local comp and see if SN are 
+easily identifiable.
+{{{
+# pull down to local comp
+rsync -avz -e ssh cmutnik@atlas-base-adm01.ifa.hawaii.edu:~/astr399/data/skyscout/remaining.SN.stamps/tile_stamps ./
+}}}
+Once pulled down to local comp, remove this unneeded 3.5G file
+{{{
+cd ~/astr399/data/skyscout/remaining.SN.stamps
+rm -rf tile_stamps
+}}}
+
+----
+Compile a list of all ddt observations that should overlap 
+within a +/- 10day window
+{{{
+cd ~/work/classes/ASTR399/data/rematch/remaining_SN
+
+awk 'NR>1{print $2}' ../sn_list_161011.txt > /tmp/foo.list
+
+awk '{print $4}' ../below.atlas.mjd >> /tmp/foo.list
+awk '{print $1}' ../below.-30.161011.list >> /tmp/foo.list
+awk '{print $1}' Remaining.SN.list >> /tmp/foo.list
+cat /tmp/foo.list | sort | uniq -u > should.match
+
+cat /tmp/foo.list | sort | uniq -u | wc
+#>> 96
+}}}
+ * something is off here, do this a different way
+
+{{{
+# make a list of all SN
+awk 'NR>1{print $2}' ~/astr399/data/rematch/sn_list_161011.txt > /tmp/good.sn
+
+# add the 65 that went unmatched
+awk '{print $7}' ~/astr399/data/rematch/remaining_SN/fullDat.Remaining.SN.list >> /tmp/good.sn
+
+# add all SN that were discovered before ATLAS obs started and outside ATLAS FOV
+#awk '{print $1}' ~/astr399/data/rematch/below.-30.161011.list >> /tmp/good.sn
+awk '{print $1}' ~/astr399/data/rematch/shouldnt.be.seen.list >> /tmp/good.sn
+
+# now sort s.t. only non-duplicates are listed
+cat /tmp/good.sn | sort | uniq -u | wc #>> 96
+cat /tmp/good.sn | sort | uniq -u > /tmp/only.good.SN.list
+}}}
+There are 96 SN that we can use...that is to say, of the 385 original SN 
+96 were discovered while ATLAS was making observations, in our FOV
+
+183 SN are eliminated based on location and discovery date
+{{{
+awk '{print $1}' shouldnt.be.seen.list | sort | uniq -u | wc
+#>> 183
+}}}
+
+Now match SN list and strip it down to make a list of only good SN (ones we 
+expect to see in the reduced and diff data)
+{{{
+# use cm to match based on ASN ID
+cm 1 /tmp/only.good.SN.list 7 ~/astr399/data/rematch/rematch_assasn.full385.txt > /tmp/sn.not.not1
+
+# break up into 2 columns, with '|' as the delimiter 
+awk -F"|" '{print $2}' /tmp/sn.not.not1 | wc #>> 96
+awk -F"|" '{print $2}' /tmp/sn.not.not1 > fullDat.observed.SN.list
+}}}
+
+
+{{{
+  cat fullDat.observed.SN.list | while read LINE ; do
+    disc=$(echo $LINE | awk '{print int($1)}')
+    age=$(echo $LINE | awk '{print int($6)}')
+    ra=$(echo $LINE | awk '{print $2}')
+    dec=$(echo $LINE | awk '{print $3}')
+    for ((i=$((disc-age-10)); i<=$((disc-age+10)); i++)) ; do
+      cat /atlas/red/02a/$i/$i.log 2>/dev/null
+    done | grep -v Obs | grep o | awk '$10>10{print $0}' > /tmp/foo
+    dra=$(echo 2.5 $dec | awk '{printf "%.3f", $1/cos($2/57.296)}')
+    gotsome=$(echo $ra $dec | cm 1,2 - 11,12 /tmp/foo -tol $dra,2.5)
+    if [[ -n $gotsome ]] ; then
+      echo "$LINE"
+      echo $ra $dec | cm 1,2 - 11,12 /tmp/foo -tol $dra,2.5
+    fi
+  done
+
+# if it was changed to 
+#####
+#  # [...]
+#      echo "$LINE"
+#      #echo $ra $dec | cm 1,2 - 11,12 /tmp/foo -tol $dra,2.5
+#    fi
+#  done | wc
+#####  
+# we expect to get 96, the same as the input file
+# but we actually get 71...what is missing and why
+}}}
+What is happening to those 25? Is there something being overlooked? 
+Look at this in morning, with fresher eyes...I hate being sick.
+
+----
+This shows us we have 1697 ddt lines that arent accounted for
+{{{
+cd ~/astr399/just.keep.matching
+# file containing cm output: asn SN matched to obs with cm tol of 10days
+#>> asn.10d.mch
+# file contiaing cm output: asn.10d.mch matched to atlas ddt files
+#>> asn.10d.atlas
+ls | wc -l asn.10*
+#>>  645 asn.10d.atlas
+#>> 2342 asn.10d.mch
+}}}
+
+
+----
+=== 161018 ===
+{{{
+cat asn.10d.mch | while read LINE ; do
+  obs=$(echo $LINE | awk '{print $10}')
+  m=$(echo $LINE | awk '{print substr($10,4,5)}')
+  ra=$(echo $LINE | awk '{print $2}')
+  dec=$(echo $LINE | awk '{print $3}')
+  echo $obs ": "
+  if [[ -e /atlas/diff/02a/$m/$obs.ddt ]] ; then
+      xy=$(sky2pix /atlas/red/02a/$m/$obs.fits.fz $ra $dec)
+      match=$(echo $xy | cm 1,2 - 5,6 /atlas/diff/02a/$m/$obs.ddt -tol 4)
+      mchawk=$(echo $match | awk -F"|" '{print $2}')
+      echo $mchawk
+  else 
+    echo "$obs.ddt DNE" 
+  fi
+done > clean.it.up
+}}}
+Empty line should indicate ddt files that exist but do not have this obs in them\\
+Lines that claim "DNE" are ddt files the do not exit\\
+Lines that are filled out have the ddt file line for that particular match
+
+----
+Replicate JTs work from yesterday, using list of SN we expect 
+to see: fullDat.observed.SN.list\\
+{{{
+  cat fullDat.observed.SN.list | while read LINE ; do
+    disc=$(echo $LINE | awk '{print int($1)}')
+    age=$(echo $LINE | awk '{print int($6)}')
+    ra=$(echo $LINE | awk '{print $2}')
+    dec=$(echo $LINE | awk '{print $3}')
+    for ((i=$((disc-age-10)); i<=$((disc-age+10)); i++)) ; do
+      cat /atlas/red/02a/$i/$i.log 2>/dev/null
+    done | grep -v Obs | grep o | awk '$10>10{print $0}' > /tmp/foo
+    dra=$(echo 2.5 $dec | awk '{printf "%.3f", $1/cos($2/57.296)}')
+    gotsome=$(echo $ra $dec | cm 1,2 - 11,12 /tmp/foo -tol $dra,2.5)
+    if [[ -n $gotsome ]] ; then
+      echo "$LINE"
+    #  echo $ra $dec | cm 1,2 - 11,12 /tmp/foo -tol $dra,2.5
+    fi
+  done > fullDat.expected.SN.asn.log.mch
+}}}
+This gives us the 71 SN we expect to see in our log files\\
+But the other method give 96
+
+Also make a list of expected ddt files
+{{{
+    if [[ -n $gotsome ]] ; then
+      echo "$LINE"
+      echo $ra $dec | cm 1,2 - 11,12 /tmp/foo -tol $dra,2.5
+    fi
+  done > expected.ddt.mch
+}}}
+
+There should be 96\\
+take a break\\
+the PhysGRE is this saturday...start reviewing that book and 
+wait for my brain to start working again and for JTs email\\
+wait\\
+the GRE is next Saturday, maybe I should get some sleep...this 
+isn't working out...cmon brain
+
+----
+JT answered my email and finished this work for me [wiki:JTStatTrans#a161018 here]\\
+Break down and go through this script, see where mine went wrong
+{{{
+cat fullDat.observed.SN.list | while read LINE ; do
+
+# SN discovery, age at discovery, RA, and Dec
+    disc=$(echo $LINE | awk '{print int($1)}')
+    age=$(echo $LINE | awk '{print int($6)}')
+    ra=$(echo $LINE | awk '{print $2}')
+    dec=$(echo $LINE | awk '{print $3}')
+
+# Get all observations within +/-10 day of SN
+    for ((i=$((disc-age-10)); i<=$((disc-age+10)); i++)) ; do
+      cat /atlas/red/02a/$i/$i.log 2>/dev/null
+    done | grep -v Obs | grep o | awk '$10>10{print $0}' > /tmp/foo
+
+# RA tolerance with cos(dec)
+    dra=$(echo 2.5 $dec | awk '{printf "%.3f", $1/cos($2/57.296)}')
+
+# Test a square locale for each observation for whether it includes the SN
+    gotsome=$(echo $ra $dec | cm 1,2 - 11,12 /tmp/foo -tol $dra,2.5)
+    if [[ -n $gotsome ]] ; then
+#      echo "$LINE"
+#      echo $ra $dec | cm 1,2 - 11,12 /tmp/foo -tol $dra,2.5
+      overlap=$(echo $ra $dec | cm 1,2 - 11,12 /tmp/foo -tol $dra,2.5 | awk '{print $4}')
+
+# Look up the SN location in each observation
+      for obs in $overlap ; do
+        m=$(echo $obs | awk '{print substr($1,4,5)}')
+
+  if [[ ! -e /atlas/diff/02a/$m/$obs.diff.fz ]] ; then
+          echo "$LINE no_diff_file"
+          continue
+        fi
+
+  if [[ ! -e /atlas/diff/02a/$m/$obs.ddt ]] ; then
+          echo "$LINE no_ddt_file"
+          continue
+        fi
+
+# Get the x,y location
+        xy=$(sky2pix /atlas/diff/02a/$m/$obs.diff.fz $ra $dec)
+
+# Look it up in the ddt file
+        mch=$(echo $xy | cm 1,2 - 5,6 /atlas/diff/02a/$m/$obs.ddt -tol 3)
+  if [[ -n $mch ]] ; then
+          echo "$LINE $mch"
+        else
+          echo "$LINE $xy no_ddt_match"
+        fi
+      done
+    else
+      echo "$LINE no_obs_match"
+    fi
+  done > asas.snmch
+}}}
+Yea, this is way nicer/compact than my way but it isn't that different 
+my method should have worked...it would have taken more steps and 
+overall longer wall-clock time, but where is my error? Syntax?\\
+Complete analysis of these results shown [wiki:JTStatTrans#a161018 here]
+
+{{{
+  grep -v no asas.snmch > asas.ok
+# ddt header starts at line 11
+# (line 11 is cm result "|", "D")
+#   RA        Dec      m     dm    xtsk    ytsk    Peak  Sky   chin var-krn Pstar Pkast Preal  star dstar mstar kast dkast
+}}}
+
+
+----
+Identify trends in the data\\
+Throw up a plot of ASN magnitude VS mag in ddt 
+file (with error)\\
+[[Image(mddt.masn.png,20%)]]
+
+#------------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------
+Look at Ari's notes on how to ID SN from our data\\
+cm SN with link data
+
+----
+modifications to match to link composite link file
+{{{
+#[...]
+  mch=$(echo $ra $dec | cm 1,2 - 8,9 /data/home/cmutnik/astr399/data/linked/links.57320.57664.lnk -tol $dra,2.5)
+#[...]
+  done > /tmp/asn.lnk
+}}}
+need to run
+{{{
+  grep -v no /tmp/asn.lnk.xy.mch > asn.xy.lnk.mch
+  grep -v no /tmp/asn.lnk.tol0tac003 > asn.RaDec.lnk.tol0tac003.mch
+}}}
+
+
+#------------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------
+
+
+----
+----
+= Summary =
+ As of 161011::
+asn has reported 385 SN.
+Using a 50 day window results in
+ * 11891 matches
+ * 1848 observations of 102 supernovae.
+It has 3 of the 5 new SN:
+ * ASASSN-16la
+ * ASASSN-16kz
+ * ASASSN-16kv
+It doesn't have the following new SN (2 of 5):
+ * ASASSN-16lc: Dec=-51.97049
+ * ASASSN-16kw: Dec=-41.68713
+
+
+Of the 385 asn SN:\\
+100 SN have a Dec lower than -30\\
+165 SN were observed by asn before ATLAS observations began\\
+
+After removing duplicates, this accounts for 320 SN...leaving us 
+with 65 that need to be IDed. Once IDed, we must justify why 
+they weren't seen in our obs
+
+
+
+"yesASN_yesATLAS.161011.list" is a list of all the observations that asn 
+reported and atlas matched, within the specified window\\
+"noASN_yesATLAS.161011.list" is a list of atlas obs that fall outside 
+the asn symmetrized window\\
+Note: symmetry about the peak date, not about the date of discovery\\
+
+
+----
+ As of 161012-161014::
+The remaining 65 SN have been identified. 
+"Remaining.SN.list" contains the asn ID for all 65 supernova 
+that have a Declination above -30 and should exist in the ATLAS 
+observations; based on the discovery dates provided by asn.
+
+ * Ignore this previous remark:
+ {{{
+  #Two additional SN were lost between cm'ing asn
+  #data with /atlas/red/02a/*.log and cm'ing again 
+  #with /atlas/diff/02a/*.ddt.  A new file, 
+  #"All.remaining.SN.list", includes the 65 previously 
+  #missing and these newly missing ones.
+ }}}
+
+Do away with "All.remaining.SN.list" and revert to using "Remaining.SN.list" again, 
+the two SN added to make "All.remaining.SN.list" have declinations below -30; 
+therefore, they do not belong of the remaining list.  There are only 65 SN that 
+need explanations for why they didn't match.
+
+** Now we must determine why these 65 SN didnt show up during the matching 
+of asn and atlas data. **
+
+First step is to pull there data as look for trends\\
+"fullDat.Remaining.SN.list" has all the original 
+asn data for the unmatched 65 SN, with discovery 
+date converted to mjd
+
+----
+ As of 161017::
+To summarize the 65:
+ * 50/65 never had any sky/time overlap with ATLAS
+ * 14/65 were 57364 or before, and the reductions were not very good
+ * 1/65 (maybe) was before the SNII exploded, or it was really faint
+More details on how this was done can be found on [wiki:JTStatTrans#a160922 JTs wiki]. 
+This is to say there were 0 SN that asn saw and ATLAS didn't.
+
+
+
+#------------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------
+# NOT UPDATED ON WIKI
+#------------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------
+#
+# Talk to JT about Ken's work with/on supernova...he mentioned it during last weeks meeting
+#
+#------------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------
+
+----
+Run when comp isnt crazy slow
+{{{
+# local comp
+./run.when.not.slow.sh
+# on adm01
+./run.next.sh
+
+
+grep -v no /tmp/asn.lnk.xy.mch > asn.xy.lnk.mch
+grep -v no /tmp/asn.lnk.tol0tac003 > asn.RaDec.lnk.tol0tac003.mch
+
+ls | wc -l /tmp/asn.lnk.xy.mch
+ls | wc -l /tmp/asn.lnk.tol0tac003
+}}}
+
+
+# Is it the same for -tol 0.003 as it si for -tol 2.5
+{{{
+awk 'NF==23{print $0}' /tmp/asn.lnk.tol0tac003  > /tmp/foo.tol0.003
+ gnuplot
+set key off
+set xlabel "logv"
+set ylabel "rms"
+set logscale x
+set logscale y
+#plot "/tmp/foo.tol2.5" u 13:($8*$8 + $9*$9)**0.5 w p
+
+plot "../data/linked/links.57320.57664.lnk" u 10:($5*$5 + $6*$6)**0.5 t "all lnks" lc rgb "green" w p, \
+  "/tmp/foo.tol0.003" u 13:($8*$8 + $9*$9)**0.5 t "asn SN" lc rgb "red" w p
+}}}
+
+
+----
+Make histograms\\
+ * bin asn SN based on mjd
+  - overlayed with matched atlas data
+ * bin asn SN based on Dec
+  - overlayed with matched atlas data
+Plot with veritcal lines marking cutoffs
+ * Dec=-30
+ * atlas-red: mjd=57177
+ * atlas-diff: mjd=57192
+ * both go up to 57673
+
+
+For these plots:\\
+fix x tics\\
+fix y tics\\
+adjust alignment of LHS\\
+
+
+Modify limits using the full asn SN list
+
+
+http://stackoverflow.com/questions/29828825/matplotlib-cumulative-histogram-vertical-line-placement-bug-or-misinterpretati
+
+
+----
+{{{
+cd /Users/cmutnik/work/classes/ASTR399/figs/
+mkdir histo_161017
+cd histo_161017
+scp /Users/cmutnik/work/classes/ASTR399/data/rematch/remaining_SN/fullDat.Remaining.SN.list .
+}}}
+----
+----
+Also, make histograms for the remaining data 
+based on mjd; and another using Dec...needa 
+find a correlation between them all that explains 
+why they failed to match
+
+
+----
+= NEED TO RE-DO = 
+Re-Do the recent "quantify" section\\
+
+=== Result summary ===
+of 380 SN, 99 matched\\
+Assuming symettry about the peak date:\\
+xx observations matched
+
+
+
+#------------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------
+
+

@@ -1,1 +1,0 @@
-[Link to class home page.](http://astr01.ifa.hawaii.edu/ay301)
