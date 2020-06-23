@@ -1,0 +1,18 @@
+[
+  {
+    "name":"Test App 1",
+    "children":[
+      {"name":"Configurations","progress":1},
+      {"name":"UI","progress":1},
+      {"name":"Backend","progress":0.25}
+    ]
+  },
+  {
+    "name":"App 2",
+    "children":[
+      {"name":"Configurations","progress":1},
+      {"name":"UI","progress":0.25},
+      {"name":"Backend","progress":0.5}
+    ]
+  }
+]
