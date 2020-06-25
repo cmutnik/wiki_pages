@@ -1,0 +1,49 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+
+<a href="javascript:void(0);" onclick="getSummary('1')">Click here to load text from designated url</a>
+<div id="summary">This text will be replaced when the onclick event (link is clicked) is triggered.</div>
+
+<script>
+function getSummary(id)
+{
+   $.ajax({
+
+     type: "GET",
+     url: 'https://raw.githubusercontent.com/cmutnik/wiki_pages/master/bah/js_basics/sampledata/sample3.csv',
+     data: "id=" + id, // appears as $_GET['id'] @ your backend side
+     success: function(data) {
+           // data is ur summary
+          $('#summary').html(data);
+     }
+   });
+}
+</script>
+
+
+<!-- THIS ALSO WORKS -->
+
+<br><br><br>
+<a href="javascript:void(0);" class="movie" onclick="getmoviename('1')">
+    Clickable Link </a>
+<div id="summary2">Here is summary of movie</div>
+
+<script>
+       function getmoviename(id)
+   {    
+     //var p_url= "https://raw.githubusercontent.com/cmutnik/wiki_pages/master/bah/js_basics/sampledata/sample3.csv";
+     //var p_url = "https://boozallen.sharepoint.com/teams/analytics/members/Trevor/TakoLib_PACAF_JA/Forms/AllItems.aspx?id=%2Fteams%2Fanalytics%2Fmembers%2FTrevor%2FTakoLib%5FPACAF%5FJA%2F00%5Fmysunburst%2Ehtml&parent=%2Fteams%2Fanalytics%2Fmembers%2FTrevor%2FTakoLib%5FPACAF%5FJA";
+     var p_url = "sharepoint.com/sites/testSite/_api/web/lists/GetByTitle('listName')/items";
+     jQuery.ajax({
+     type: "GET",             
+     url: p_url,
+     data: "id=" + id,
+      success: function(data) {
+       $('#summary2').html(data);
+
+    }
+ });    
+ }
+</script>
+
+
