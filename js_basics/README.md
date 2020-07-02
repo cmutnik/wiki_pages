@@ -21,5 +21,17 @@ removes the text box and just prints directly to the HTML page. -->
 ### Read in File and Print to Console
 Use [`readinPrintConsole/index.html`](readinPrintConsole/index.html)
 
----
-# Read in SharePoint List
+----
+### Read File Using ajax
+The script [`ajax_textFromURL.html`](./ajax_textFromURL.html) shows how to read in files, using `ajax`.<br>
+NOTE:<br>
+You cannot read in local files with this method.  You must read in files hosted online.  This script uses example files hosted by github:
+```js
+var _url='https://raw.githubusercontent.com/cmutnik/wiki_pages/master/bah/js_basics/sampledata/sample3.csv';
+//...
+url: _url,
+```
+
+----
+### Read in SharePoint List
+Instructions and an explanation can be found on the [SharePoint page README.](./SharePoint/README.md)
