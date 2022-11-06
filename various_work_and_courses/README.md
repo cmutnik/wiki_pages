@@ -1,0 +1,1 @@
+Various wiki pages.  Most have been inspired by projects or classes taken online.  Also check out the repos for storing [Udemy](https://github.com/cmutnik/Udemy_work) and [Coursera](https://github.com/cmutnik/Coursera_work) (intentionally deprecated link, permissions given upon request).
