@@ -1,1 +1,1 @@
-My bah work wiki pages.  Most are from classes I have taken on Udemy.  Also check out my [Udemy work github page.](https://github.com/cmutnik/Udemy_work) 
+Random wiki pages.  Most have been inspired by projects or classes taken online.  Also check out my [Udemy work github page](https://github.com/cmutnik/Udemy_work) (intentionally deprecated link, permissions given upon request).
