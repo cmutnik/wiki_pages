@@ -1,0 +1,161 @@
+# **Virtual Environments**
+----
+----
+
+### virtualenv
+If you do not wish to use anaconda, you can make a venv the old fashion way
+```
+# make venv
+virtualenv -p $(which python3) your_env_name
+# activate venv
+source ./your_env_name
+# deactivate venv
+deactivate
+```
+Here, the command `which python3` is wrapped in a bash environment variable declaration.  
+This allows you to initiate your virtualenv with the explicit path to python3, without having 
+to type out the explicit path.  If you are not familiar with this notation, just run the 
+command by itself `which python` and see the dir path printout.
+
+The rest of this page is dedicated to anaconda venvs.
+
+----
+### Anaconda Virtual Environments
+Anaconda allows you to `conda create` venvs with the following command
+```
+conda create -n <name_of_venv> python=3.5
+```
+You can also make venv with dependancies (version number is not required)
+```
+conda create -n <name_of_venv> python=3.7 numpy requests=2.19.1
+```
+Activate your conda venv
+```
+conda activate <name_of_venv>
+```
+
+----
+### When Youre Done With venv
+Deactivate venv
+```
+conda deactivate
+```
+
+----
+### Restoring
+Conda stores your env histories, so you can go back to a previous version.  
+List history  of each change made to this env:
+```
+conda list --revisions
+```
+Restore an environment to previous 'revision'/version:
+```
+conda install --revision=REVNUM
+# these lines work the same
+conda install --rev REVNUM.
+```
+
+----
+### Packages
+To remove multiple packages from the current env:
+```
+conda remove scipy curl
+```
+To remove a package from a specified env:
+```
+conda remove -n <name_of_venv> scipy
+```
+Confirm packages were removed:
+```
+conda list
+```
+More information on controlling packages can be found [here.](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-pkgs.html)
+
+
+----
+### Removal 
+To remove an env and all is dependancies: 
+```
+conda remove --name <name_of_venv> --all
+```
+Or use the older command:
+```
+conda env remove --name <name_of_venv>
+```
+
+----
+Verify the env was removed
+```
+conda info --envs
+```
+
+
+----
+----
+# Going Further
+----
+### Paths and Updating
+
+Where conda envs live: `/directory_path_to_conda/miniconda3/envs`.
+If you dont remember where you installed anaconda, you can use `pip -V` 
+to trace it (take not that V is capitalized).  Or you can list all of 
+your conda environments
+```
+# list all virtual envs
+conda env list
+```
+Update an environment (ie a new dependency version)
+    - update the contents of your `environment.yml` file and run this command:
+```
+conda env update --prefix ./env --file environment.yml  --prune
+```
+
+
+----
+### environment.yml
+You can create an environment by using an `environment.yml` file.
+```
+conda env create -f environment.yml
+```
+Once the environment is created, it needs to be activated:
+```
+conda activate myenv
+```
+If you want to verify the env was installed correctly:
+```
+conda env list
+```
+
+
+The first line of the `environment.yml` file is the env name. 
+This is a simple `environment.yml` example:
+```
+name: stats
+dependencies:
+  - numpy
+  - pandas
+```
+Here is a more complex `environment.yml` example:
+```
+name: stats2
+channels:
+  - javascript
+dependencies:
+  - python=3.6   # or 2.7
+  - bokeh=0.9.2
+  - numpy=1.9.*
+  - nodejs=0.10.*
+  - flask
+  - pip:
+    - Flask-Testing
+```
+
+
+
+----
+### Other Resources 
+
+[Conda Cheatsheet](https://docs.conda.io/projects/conda/en/4.6.0/_downloads/52a95608c49671267e40c689e0bc00ca/conda-cheatsheet.pdf)
+
+[Controlling Packages](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-pkgs.html)
+
